@@ -86,7 +86,12 @@
         "services": "Services",
         "pricing": "Pricing",
         "about": "About",
-        "contact": "Contact"
+        "contact": "Contact",
+        "clients": "Clients",
+        "deals": "Deals",
+        "tasks": "Tasks",
+        "products": "Products",
+        "invoices": "Invoices"
     },
     "dashboard": {
         "title": "Medical Cockpit",

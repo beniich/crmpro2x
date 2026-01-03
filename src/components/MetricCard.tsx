@@ -14,7 +14,7 @@ interface MetricCardProps {
 
 export const MetricCard = ({ title, value, icon: Icon, trend, className }: MetricCardProps) => {
   return (
-    <Card className={`hover:shadow-lg transition-shadow ${className}`}>
+    <Card className={`glass-card hover:shadow-lg transition-shadow border-none ${className}`}>
       <CardContent className="pt-6">
         <div className="flex items-start justify-between">
           <div className="space-y-2">

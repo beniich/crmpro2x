@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
-export type WorkspaceType = 'clinic' | 'hospital' | 'private_practice' | 'dental' | 'other';
+export type WorkspaceType = 'clinic' | 'hospital' | 'private_practice' | 'dental' | 'crm' | 'other';
 
 export interface Team {
     id: string;
@@ -47,6 +47,18 @@ interface WorkspaceState {
 
 const INITIAL_WORKSPACES: Workspace[] = [
     {
+        id: 'ws-000',
+        name: 'Cloud Industrie HQ',
+        type: 'crm',
+        logo: '/logo.png',
+        users: ['user-001'],
+        settings: {},
+        teams: [
+            { id: 't-crm-1', name: 'Sales', color: '#3b82f6', members: ['user-001'], icon: 'TrendingUp' },
+            { id: 't-crm-2', name: 'Marketing', color: '#ef4444', members: ['user-001'], icon: 'Megaphone' },
+        ]
+    },
+    {
         id: 'ws-001',
         name: 'Clinique Pasteur',
         type: 'clinic',
@@ -76,7 +88,7 @@ export const useWorkspaceStore = create<WorkspaceState>()(
     persist(
         (set, get) => ({
             workspaces: INITIAL_WORKSPACES,
-            activeWorkspaceId: 'ws-001',
+            activeWorkspaceId: 'ws-000',
 
             setActiveWorkspace: (id) => set({ activeWorkspaceId: id }),
 

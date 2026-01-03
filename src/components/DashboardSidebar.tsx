@@ -1,10 +1,10 @@
-import { LayoutDashboard, Users, UserPlus, CalendarDays, BedDouble, Stethoscope, Receipt, BarChart3, Settings, ShieldCheck, Activity, TrendingUp, MessageSquare, ClipboardList, SquareKanban } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
 import { useBrandingStore } from "@/stores/useBrandingStore";
 import { useTranslation } from "react-i18next";
 import { LanguageSelector } from "@/components/LanguageSelector";
 import { WorkspaceSwitcher } from "@/components/WorkspaceSwitcher";
+import { useWorkspaceStore } from "@/stores/useWorkspaceStore";
 import {
   Sidebar,
   SidebarContent,
@@ -14,26 +14,40 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  SidebarTrigger,
   SidebarFooter,
   useSidebar,
 } from "@/components/ui/sidebar";
 
 // Clés de navigation avec leurs clés de traduction
-const navigationItems = [
+import { LayoutDashboard, Users, UserPlus, CalendarDays, BedDouble, Stethoscope, Receipt, BarChart3, Settings, ShieldCheck, Activity, TrendingUp, MessageSquare, ClipboardList, SquareKanban, Briefcase, ShoppingBag, CheckSquare, FileText } from "lucide-react";
+
+// Common items visible in all workspaces
+const commonItems = [
   { titleKey: "nav.dashboard", url: "/dashboard", icon: LayoutDashboard },
-  { titleKey: "nav.board", url: "/board", icon: SquareKanban },
-  { titleKey: "nav.teams", url: "/teams", icon: Users },
+  { titleKey: "nav.messages", url: "/messages", icon: MessageSquare }, // Chat is universal
+  { titleKey: "nav.security", url: "/security", icon: ShieldCheck },
+  { titleKey: "nav.settings", url: "/settings", icon: Settings },
+];
+
+// CRM / Enterprise specific items
+const crmItems = [
+  { titleKey: "nav.clients", url: "/companies", icon: Briefcase },
+  { titleKey: "nav.deals", url: "/deals", icon: TrendingUp },
+  { titleKey: "nav.tasks", url: "/tasks", icon: CheckSquare },
+  { titleKey: "nav.products", url: "/products", icon: ShoppingBag },
+  { titleKey: "nav.invoices", url: "/finance/invoices", icon: FileText },
+  { titleKey: "nav.reports", url: "/analytics", icon: BarChart3 },
+];
+
+// Medical / Hospital specific items
+const medicalItems = [
   { titleKey: "nav.patients", url: "/patients", icon: Users },
   { titleKey: "nav.agenda", url: "/schedule", icon: CalendarDays },
   { titleKey: "nav.secretary", url: "/secretary", icon: ClipboardList },
-  { titleKey: "nav.staff", url: "/staff", icon: Users },
+  { titleKey: "nav.staff", url: "/staff", icon: Stethoscope },
   { titleKey: "nav.resources", url: "/resources/map", icon: BedDouble },
-  { titleKey: "nav.billing", url: "/finance/invoices", icon: Receipt },
-  { titleKey: "nav.messages", url: "/messages", icon: MessageSquare },
+  { titleKey: "nav.board", url: "/board", icon: SquareKanban }, // Kanban for patient flow
   { titleKey: "nav.reports", url: "/reports", icon: BarChart3 },
-  { titleKey: "nav.security", url: "/security", icon: ShieldCheck },
-  { titleKey: "nav.settings", url: "/settings", icon: Settings },
 ];
 
 export function DashboardSidebar() {
@@ -42,12 +56,34 @@ export function DashboardSidebar() {
   const currentPath = location.pathname;
   const { appName, logoUrl, iconUrl, footerText } = useBrandingStore();
   const { t } = useTranslation();
+  const { getActiveWorkspace } = useWorkspaceStore();
+
+  const activeWorkspace = getActiveWorkspace();
+  const isMedical = activeWorkspace?.type === 'clinic' || activeWorkspace?.type === 'hospital' || activeWorkspace?.type === 'dental' || activeWorkspace?.type === 'private_practice';
+
+  // Combine items: Common items + Context specific items
+  // We filter reports from specific lists if they are already in common, but here common only has Settings/Security/Dashboard/Messages.
+  // Actually commonItems does NOT have Reports, so we keep reports in specific lists.
+  // Wait, let's put Dashboard first, then specific items, then common utils (Settings, etc).
+
+  const mainNavItems = isMedical ? medicalItems : crmItems;
+  const dashboardUrl = isMedical ? "/dashboard" : "/crm";
+
+  // Re-organize: Dashboard -> [Specific] -> Messages -> Security -> Settings
+  const topItems = [{ titleKey: "nav.dashboard", url: dashboardUrl, icon: LayoutDashboard }];
+  const bottomItems = [
+    { titleKey: "nav.messages", url: "/messages", icon: MessageSquare },
+    { titleKey: "nav.security", url: "/security", icon: ShieldCheck },
+    { titleKey: "nav.settings", url: "/settings", icon: Settings },
+  ];
+
+  const navigationItems = [...topItems, ...mainNavItems, ...bottomItems];
 
   const isActive = (path: string) => currentPath === path;
   const currentYear = new Date().getFullYear();
 
   return (
-    <Sidebar collapsible="icon" className="border-r border-sidebar-border flex flex-col">
+    <Sidebar collapsible="icon" className="glass-panel border-r-0 flex flex-col h-screen fixed left-0 top-0 z-40 transition-all duration-300">
       <div className="p-2 border-b border-sidebar-border">
         <WorkspaceSwitcher />
       </div>
