@@ -1,0 +1,322 @@
+{
+    "common": {
+        "save": "Enregistrer",
+        "cancel": "Annuler",
+        "delete": "Supprimer",
+        "edit": "Modifier",
+        "add": "Ajouter",
+        "search": "Rechercher",
+        "loading": "Chargement...",
+        "error": "Erreur",
+        "success": "Succès",
+        "confirm": "Confirmer",
+        "close": "Fermer",
+        "back": "Retour",
+        "next": "Suivant",
+        "previous": "Précédent",
+        "upload": "Télécharger",
+        "download": "Télécharger",
+        "reset": "Réinitialiser",
+        "allRightsReserved": "Tous droits réservés",
+        "install": "Installer",
+        "installApp": "Installer l'application"
+    },
+    "home": {
+        "hero": {
+            "title": "Cloud Industrie – Solutions Cloud et Services Numériques",
+            "subtitle": "Transformez votre entreprise avec nos solutions cloud innovantes et sécurisées",
+            "cta": {
+                "discover": "Découvrir",
+                "createAccount": "Créer un compte",
+                "contact": "Nous contacter"
+            }
+        },
+        "services": {
+            "title": "Nos Services",
+            "subtitle": "Des solutions adaptées à tous vos besoins numériques",
+            "items": {
+                "cloud": {
+                    "title": "Solutions Cloud",
+                    "description": "Infrastructure cloud sécurisée et évolutive pour votre entreprise"
+                },
+                "security": {
+                    "title": "Sécurité Avancée",
+                    "description": "Protection de vos données avec les dernières technologies de cybersécurité"
+                },
+                "performance": {
+                    "title": "Performance Optimale",
+                    "description": "Des services rapides et fiables pour votre productivité"
+                },
+                "support": {
+                    "title": "Support Dédié",
+                    "description": "Une équipe d'experts à votre écoute 24/7"
+                }
+            },
+            "viewAll": "Voir tous les services"
+        },
+        "testimonials": {
+            "title": "Témoignages Clients",
+            "subtitle": "Ce que nos clients disent de nous",
+            "items": [
+                {
+                    "content": "Une solution cloud exceptionnelle qui a transformé notre infrastructure IT."
+                },
+                {
+                    "content": "Service client remarquable et performances au rendez-vous."
+                }
+            ]
+        }
+    },
+    "nav": {
+        "dashboard": "Tableau de Bord",
+        "board": "Tableau (Kanban)",
+        "patients": "Patients",
+        "agenda": "Agenda",
+        "secretary": "Secrétariat",
+        "teams": "Équipes",
+        "staff": "Personnel",
+        "resources": "Ressources",
+        "billing": "Facturation",
+        "messages": "Messagerie",
+        "reports": "Rapports",
+        "security": "Sécurité",
+        "settings": "Paramètres",
+        "home": "Accueil",
+        "medflow": "MedFlow AI",
+        "services": "Services",
+        "pricing": "Tarifs",
+        "about": "À propos",
+        "contact": "Contact"
+    },
+    "dashboard": {
+        "title": "Cockpit Médical",
+        "subtitle": "Vue d'ensemble de l'activité hospitalière",
+        "newAdmission": "Nouvelle Admission",
+        "overviewTitle": "CRM Pro - Vue d'ensemble",
+        "overviewSubtitle": "Tableau de bord de gestion de la relation client",
+        "metrics": {
+            "activeCustomers": "Clients Actifs",
+            "opportunities": "Opportunités",
+            "monthlyRevenue": "CA du Mois",
+            "conversionRate": "Taux de Conversion"
+        },
+        "recentActivity": "Activité récente"
+    },
+    "settings": {
+        "title": "Paramètres",
+        "subtitle": "Gérez vos préférences et paramètres d'application",
+        "profile": "Profil",
+        "branding": "Marque",
+        "notifications": "Notifications",
+        "security": "Sécurité",
+        "integrations": "Intégrations",
+        "appearance": "Apparence",
+        "data": "Données",
+        "personalInfo": "Informations Personnelles",
+        "firstName": "Prénom",
+        "lastName": "Nom",
+        "email": "Email",
+        "phone": "Téléphone",
+        "company": "Entreprise",
+        "brandingTitle": "Personnalisation de la Marque",
+        "brandingSubtitle": "Personnalisez l'apparence de votre tableau de bord",
+        "appName": "Nom de l'Application",
+        "headerTitle": "Titre d'En-tête",
+        "footerText": "Texte du Pied de Page",
+        "displayedInSidebar": "Affiché dans la barre latérale",
+        "displayedInPageTitle": "Affiché dans le titre de la page",
+        "displayedAtBottom": "Affiché en bas de la barre latérale",
+        "mainLogo": "Logo Principal",
+        "favicon": "Favicon",
+        "sidebarIcon": "Icône Barre Latérale",
+        "resetToDefaults": "Réinitialiser",
+        "saveChanges": "Sauvegarder les modifications",
+        "brandingSaved": "Personnalisation sauvegardée",
+        "brandingUpdated": "Votre marque a été mise à jour avec succès.",
+        "defaultsRestored": "Valeurs par défaut restaurées",
+        "brandingReset": "Les paramètres de marque ont été réinitialisés."
+    },
+    "auth": {
+        "login": "Connexion",
+        "logout": "Déconnexion",
+        "register": "S'inscrire",
+        "forgotPassword": "Mot de passe oublié",
+        "email": "Email",
+        "password": "Mot de passe",
+        "confirmPassword": "Confirmer le mot de passe",
+        "welcome": "Bienvenue",
+        "description": "Connectez-vous ou créez un compte",
+        "cardTitle": "Authentification",
+        "cardDescription": "Accédez à votre espace Cloud Industrie",
+        "fullName": "Nom complet",
+        "fullNamePlaceholder": "Jean Dupont",
+        "loggingIn": "Connexion...",
+        "loginAction": "Se connecter",
+        "registering": "Création...",
+        "registerAction": "Créer un compte",
+        "orContinueWith": "Ou continuer avec",
+        "backToHome": "Retour à l'accueil"
+    },
+    "pricing": {
+        "title": "Nos Tarifs",
+        "subtitle": "Choisissez le plan qui correspond à vos besoins",
+        "monthly": "Mensuel",
+        "yearly": "Annuel",
+        "perMonth": "/mois",
+        "perYear": "/an",
+        "getStarted": "Commencer",
+        "mostPopular": "Le Plus Populaire",
+        "features": "Fonctionnalités",
+        "includedFeatures": "Fonctionnalités Incluses",
+        "badge": "Tarification simple et transparente",
+        "heroTitle": "Choisissez le plan qui vous",
+        "heroTitleHighlight": "propulse vers l'excellence",
+        "heroSubtitle": "Pas de frais cachés. Pas d'engagement. Commencez gratuitement et évoluez selon vos besoins.",
+        "save20": "-20% économisé",
+        "plans": {
+            "free": {
+                "name": "Gratuit",
+                "description": "Idéal pour découvrir la plateforme",
+                "cta": "Commencer gratuitement",
+                "features": {
+                    "chat": "Chat IA limité (50 requêtes/mois)",
+                    "users": "1 utilisateur",
+                    "process": "Accès aux processus de base",
+                    "manufacturing": "3 ordres de fabrication/mois",
+                    "support": "Support email standard",
+                    "analysis": "Analyse méthodes IA",
+                    "vision": "Vision IA (détection défauts)",
+                    "erp": "Intégrations ERP"
+                }
+            },
+            "pro": {
+                "name": "Pro",
+                "description": "Pour les équipes de production",
+                "cta": "Démarrer l'essai Pro",
+                "badge": "Populaire",
+                "features": {
+                    "chat": "Chat IA illimité",
+                    "models": "GPT-4 / GPT-5 / Claude / Gemini",
+                    "analysis": "Analyse Méthodes IA (MTM/MOST)",
+                    "vision": "Vision IA (détection défauts)",
+                    "planning": "Optimisation planning intelligent",
+                    "users": "5 utilisateurs inclus",
+                    "support": "Support prioritaire",
+                    "reports": "Rapports avancés PDF/Excel",
+                    "erp": "Intégrations ERP de base"
+                }
+            },
+            "business": {
+                "name": "Business",
+                "description": "Solution multi-sites complète",
+                "cta": "Contacter les ventes",
+                "features": {
+                    "pro": "Tout le plan Pro +",
+                    "multi": "Multi-usines illimitées",
+                    "oee": "OEE / TRS complet temps réel",
+                    "maintenance": "Maintenance prédictive IA",
+                    "api": "API illimitée",
+                    "workers": "Workers IA dédiés",
+                    "history": "Historique long terme (5 ans)",
+                    "rbac": "Permissions avancées RBAC",
+                    "sso": "Sécurité Enterprise (SSO)"
+                }
+            },
+            "enterprise": {
+                "name": "Enterprise",
+                "description": "Solution sur-mesure",
+                "cta": "Nous contacter",
+                "features": {
+                    "business": "Tout le plan Business +",
+                    "custom": "IA personnalisée fine-tuned",
+                    "machine": "Intégration machine-to-cloud",
+                    "support": "Support 24/7 dédié",
+                    "hosting": "Hébergement cloud privé",
+                    "audit": "Audit & conformité ISO",
+                    "mes": "Connecteurs MES sur mesure",
+                    "training": "Formation équipe incluse",
+                    "sla": "SLA garantie 99.9%"
+                }
+            }
+        },
+        "featuresTitle": "Fonctionnalités incluses",
+        "featuresSubtitle": "Toutes les fonctionnalités dont vous avez besoin pour digitaliser votre industrie",
+        "featureItems": {
+            "ai": {
+                "title": "IA Industrielle Avancée",
+                "description": "Analyse méthodes, optimisation ligne, simulation planning automatique."
+            },
+            "planner": {
+                "title": "Planificateur Intelligent",
+                "description": "Gantt dynamique + IA qui propose le meilleur séquencement."
+            },
+            "maintenance": {
+                "title": "Maintenance Prédictive",
+                "description": "Détection anomalies machine + prévision panne avant incident."
+            },
+            "kpi": {
+                "title": "KPI & Analytics",
+                "description": "TRS, OEE, Pareto, qualité, rendement en temps réel."
+            },
+            "vision": {
+                "title": "Vision Industrielle",
+                "description": "Détection défaut, inspection produit, ergonomie poste."
+            },
+            "process": {
+                "title": "Gestion Processus",
+                "description": "Création SOP, AMDEC, fiches opérateur automatisées."
+            },
+            "security": {
+                "title": "Sécurité Enterprise",
+                "description": "RBAC, audit, isolation par usine, conformité."
+            },
+            "team": {
+                "title": "Collaboration Équipe",
+                "description": "5 comptes inclus, partage, commentaires, historique."
+            }
+        },
+        "faqTitle": "Questions fréquentes",
+        "faq": {
+            "change": {
+                "q": "Puis-je changer de plan à tout moment ?",
+                "a": "Oui, vous pouvez upgrader ou downgrader votre plan à tout moment. Les changements prennent effet immédiatement avec un prorata sur votre facturation."
+            },
+            "trial": {
+                "q": "Y a-t-il un essai gratuit pour les plans payants ?",
+                "a": "Oui, tous les plans payants incluent un essai gratuit de 14 jours, sans engagement ni carte bancaire requise."
+            },
+            "billing": {
+                "q": "Comment fonctionne la facturation annuelle ?",
+                "a": "La facturation annuelle vous offre 2 mois gratuits par rapport à la facturation mensuelle. Vous êtes facturé une fois par an."
+            },
+            "erp": {
+                "q": "Quelles intégrations ERP sont supportées ?",
+                "a": "Nous supportons SAP, Oracle, Microsoft Dynamics, Sage, et de nombreux autres ERP. L'intégration personnalisée est disponible sur le plan Enterprise."
+            }
+        },
+        "helpTitle": "Besoin d'aide pour choisir ?",
+        "helpSubtitle": "Notre équipe est là pour vous accompagner et trouver la solution adaptée à vos besoins industriels.",
+        "talkExpert": "Parler à un expert",
+        "tryFree": "Essayer gratuitement"
+    },
+    "footer": {
+        "copyright": "© {{year}} {{company}} - Tous droits réservés",
+        "description": "Solutions Cloud et Services Numériques pour votre entreprise",
+        "services": {
+            "title": "Services",
+            "infrastructure": "Infrastructure Cloud",
+            "dataManagement": "Gestion de Données",
+            "security": "Sécurité"
+        },
+        "company": {
+            "title": "Entreprise",
+            "about": "À propos",
+            "contact": "Contact"
+        },
+        "legal": {
+            "title": "Légal",
+            "terms": "Conditions d'utilisation",
+            "privacy": "Politique de confidentialité"
+        }
+    }
+}

@@ -1,0 +1,322 @@
+{
+    "common": {
+        "save": "Save",
+        "cancel": "Cancel",
+        "delete": "Delete",
+        "edit": "Edit",
+        "add": "Add",
+        "search": "Search",
+        "loading": "Loading...",
+        "error": "Error",
+        "success": "Success",
+        "confirm": "Confirm",
+        "close": "Close",
+        "back": "Back",
+        "next": "Next",
+        "previous": "Previous",
+        "upload": "Upload",
+        "download": "Download",
+        "reset": "Reset",
+        "allRightsReserved": "All rights reserved",
+        "install": "Install",
+        "installApp": "Install App"
+    },
+    "home": {
+        "hero": {
+            "title": "Cloud Industrie – Cloud Solutions and Digital Services",
+            "subtitle": "Transform your business with our innovative and secure cloud solutions",
+            "cta": {
+                "discover": "Discover",
+                "createAccount": "Create an Account",
+                "contact": "Contact Us"
+            }
+        },
+        "services": {
+            "title": "Our Services",
+            "subtitle": "Solutions adapted to all your digital needs",
+            "items": {
+                "cloud": {
+                    "title": "Cloud Solutions",
+                    "description": "Secure and scalable cloud infrastructure for your business"
+                },
+                "security": {
+                    "title": "Advanced Security",
+                    "description": "Data protection with the latest cybersecurity technologies"
+                },
+                "performance": {
+                    "title": "Optimal Performance",
+                    "description": "Fast and reliable services for your productivity"
+                },
+                "support": {
+                    "title": "Dedicated Support",
+                    "description": "A team of experts at your service 24/7"
+                }
+            },
+            "viewAll": "View all services"
+        },
+        "testimonials": {
+            "title": "Client Testimonials",
+            "subtitle": "What our clients say about us",
+            "items": [
+                {
+                    "content": "An exceptional cloud solution that transformed our IT infrastructure."
+                },
+                {
+                    "content": "Remarkable customer service and performance."
+                }
+            ]
+        }
+    },
+    "nav": {
+        "dashboard": "Dashboard",
+        "board": "Board (Kanban)",
+        "patients": "Patients",
+        "agenda": "Agenda",
+        "secretary": "Secretary",
+        "teams": "Teams",
+        "staff": "Staff",
+        "resources": "Resources",
+        "billing": "Billing",
+        "messages": "Messages",
+        "reports": "Reports",
+        "security": "Security",
+        "settings": "Settings",
+        "home": "Home",
+        "medflow": "MedFlow AI",
+        "services": "Services",
+        "pricing": "Pricing",
+        "about": "About",
+        "contact": "Contact"
+    },
+    "dashboard": {
+        "title": "Medical Cockpit",
+        "subtitle": "Hospital activity overview",
+        "newAdmission": "New Admission",
+        "overviewTitle": "CRM Pro - Overview",
+        "overviewSubtitle": "Customer Relationship Management Dashboard",
+        "metrics": {
+            "activeCustomers": "Active Customers",
+            "opportunities": "Opportunities",
+            "monthlyRevenue": "Monthly Revenue",
+            "conversionRate": "Conversion Rate"
+        },
+        "recentActivity": "Recent Activity"
+    },
+    "settings": {
+        "title": "Settings",
+        "subtitle": "Manage your preferences and application settings",
+        "profile": "Profile",
+        "branding": "Branding",
+        "notifications": "Notifications",
+        "security": "Security",
+        "integrations": "Integrations",
+        "appearance": "Appearance",
+        "data": "Data",
+        "personalInfo": "Personal Information",
+        "firstName": "First Name",
+        "lastName": "Last Name",
+        "email": "Email",
+        "phone": "Phone",
+        "company": "Company",
+        "brandingTitle": "Brand Customization",
+        "brandingSubtitle": "Customize your dashboard appearance",
+        "appName": "Application Name",
+        "headerTitle": "Header Title",
+        "footerText": "Footer Text",
+        "displayedInSidebar": "Displayed in sidebar",
+        "displayedInPageTitle": "Displayed in page title",
+        "displayedAtBottom": "Displayed at bottom of sidebar",
+        "mainLogo": "Main Logo",
+        "favicon": "Favicon",
+        "sidebarIcon": "Sidebar Icon",
+        "resetToDefaults": "Reset to Defaults",
+        "saveChanges": "Save Changes",
+        "brandingSaved": "Branding saved",
+        "brandingUpdated": "Your brand has been updated successfully.",
+        "defaultsRestored": "Defaults restored",
+        "brandingReset": "Branding settings have been reset."
+    },
+    "auth": {
+        "login": "Login",
+        "logout": "Logout",
+        "register": "Register",
+        "forgotPassword": "Forgot Password",
+        "email": "Email",
+        "password": "Password",
+        "confirmPassword": "Confirm Password",
+        "welcome": "Welcome",
+        "description": "Login or create an account",
+        "cardTitle": "Authentication",
+        "cardDescription": "Access your Cloud Industrie space",
+        "fullName": "Full Name",
+        "fullNamePlaceholder": "John Doe",
+        "loggingIn": "Logging in...",
+        "loginAction": "Login",
+        "registering": "Creating account...",
+        "registerAction": "Create Account",
+        "orContinueWith": "Or continue with",
+        "backToHome": "Back to Home"
+    },
+    "pricing": {
+        "title": "Pricing Plans",
+        "subtitle": "Choose the plan that fits your needs",
+        "monthly": "Monthly",
+        "yearly": "Yearly",
+        "perMonth": "/month",
+        "perYear": "/year",
+        "getStarted": "Get Started",
+        "mostPopular": "Most Popular",
+        "features": "Features",
+        "includedFeatures": "Included Features",
+        "badge": "Simple and transparent pricing",
+        "heroTitle": "Choose the plan that",
+        "heroTitleHighlight": "propels you towards excellence",
+        "heroSubtitle": "No hidden fees. No commitment. Start for free and scale as you grow.",
+        "save20": "Save 20%",
+        "plans": {
+            "free": {
+                "name": "Free",
+                "description": "Ideal for discovering the platform",
+                "cta": "Start for free",
+                "features": {
+                    "chat": "Limited AI Chat (50 requests/month)",
+                    "users": "1 user",
+                    "process": "Access to basic processes",
+                    "manufacturing": "3 manufacturing orders/month",
+                    "support": "Standard email support",
+                    "analysis": "AI Methods Analysis",
+                    "vision": "AI Vision (defect detection)",
+                    "erp": "ERP Integrations"
+                }
+            },
+            "pro": {
+                "name": "Pro",
+                "description": "For production teams",
+                "cta": "Start Pro Trial",
+                "badge": "Popular",
+                "features": {
+                    "chat": "Unlimited AI Chat",
+                    "models": "GPT-4 / GPT-5 / Claude / Gemini",
+                    "analysis": "AI Methods Analysis (MTM/MOST)",
+                    "vision": "AI Vision (defect detection)",
+                    "planning": "Smart Planning Optimization",
+                    "users": "5 users included",
+                    "support": "Priority support",
+                    "reports": "Advanced PDF/Excel reports",
+                    "erp": "Basic ERP Integrations"
+                }
+            },
+            "business": {
+                "name": "Business",
+                "description": "Complete multi-site solution",
+                "cta": "Contact Sales",
+                "features": {
+                    "pro": "Everything in Pro plan +",
+                    "multi": "Unlimited multi-factory",
+                    "oee": "Real-time OEE / TRS",
+                    "maintenance": "AI Predictive Maintenance",
+                    "api": "Unlimited API",
+                    "workers": "Dedicated AI Workers",
+                    "history": "Long-term history (5 years)",
+                    "rbac": "Advanced RBAC Permissions",
+                    "sso": "Enterprise Security (SSO)"
+                }
+            },
+            "enterprise": {
+                "name": "Enterprise",
+                "description": "Custom solution",
+                "cta": "Contact Us",
+                "features": {
+                    "business": "Everything in Business plan +",
+                    "custom": "Fine-tuned Custom AI",
+                    "machine": "Machine-to-cloud integration",
+                    "support": "Dedicated 24/7 support",
+                    "hosting": "Private cloud hosting",
+                    "audit": "ISO Audit & Compliance",
+                    "mes": "Custom MES connectors",
+                    "training": "Team training included",
+                    "sla": "99.9% SLA guarantee"
+                }
+            }
+        },
+        "featuresTitle": "Included Features",
+        "featuresSubtitle": "All the features you need to digitize your industry",
+        "featureItems": {
+            "ai": {
+                "title": "Advanced Industrial AI",
+                "description": "Methods analysis, line optimization, automatic planning simulation."
+            },
+            "planner": {
+                "title": "Smart Planner",
+                "description": "Dynamic Gantt + AI proposing best sequencing."
+            },
+            "maintenance": {
+                "title": "Predictive Maintenance",
+                "description": "Machine anomaly detection + failure prediction before incident."
+            },
+            "kpi": {
+                "title": "KPI & Analytics",
+                "description": "TRS, OEE, Pareto, quality, real-time yield."
+            },
+            "vision": {
+                "title": "Industrial Vision",
+                "description": "Defect detection, product inspection, workstation ergonomics."
+            },
+            "process": {
+                "title": "Process Management",
+                "description": "SOP creation, FMEA, automated operator sheets."
+            },
+            "security": {
+                "title": "Enterprise Security",
+                "description": "RBAC, audit, factory isolation, compliance."
+            },
+            "team": {
+                "title": "Team Collaboration",
+                "description": "5 accounts included, sharing, comments, history."
+            }
+        },
+        "faqTitle": "Frequently Asked Questions",
+        "faq": {
+            "change": {
+                "q": "Can I change plans at any time?",
+                "a": "Yes, you can upgrade or downgrade your plan at any time. Changes take effect immediately with prorated billing."
+            },
+            "trial": {
+                "q": "Is there a free trial for paid plans?",
+                "a": "Yes, all paid plans include a 14-day free trial, with no commitment and no credit card required."
+            },
+            "billing": {
+                "q": "How does annual billing work?",
+                "a": "Annual billing gives you 2 months free compared to monthly billing. You are billed once a year."
+            },
+            "erp": {
+                "q": "Which ERP integrations are supported?",
+                "a": "We support SAP, Oracle, Microsoft Dynamics, Sage, and many other ERPs. Custom integration is available on the Enterprise plan."
+            }
+        },
+        "helpTitle": "Need help choosing?",
+        "helpSubtitle": "Our team is here to guide you and find the solution adapted to your industrial needs.",
+        "talkExpert": "Talk to an expert",
+        "tryFree": "Try for free"
+    },
+    "footer": {
+        "copyright": "© {{year}} {{company}} - All rights reserved",
+        "description": "Cloud Solutions and Digital Services for your business",
+        "services": {
+            "title": "Services",
+            "infrastructure": "Cloud Infrastructure",
+            "dataManagement": "Data Management",
+            "security": "Security"
+        },
+        "company": {
+            "title": "Company",
+            "about": "About",
+            "contact": "Contact"
+        },
+        "legal": {
+            "title": "Legal",
+            "terms": "Terms of Service",
+            "privacy": "Privacy Policy"
+        }
+    }
+}
