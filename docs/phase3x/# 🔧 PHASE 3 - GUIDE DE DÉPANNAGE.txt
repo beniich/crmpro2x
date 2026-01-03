@@ -1,0 +1,566 @@
+# 🔧 PHASE 3 - GUIDE DE DÉPANNAGE
+
+## 🎯 Solutions aux problèmes de sécurité et authentification
+
+---
+
+## ⚠️ ERREUR 1 : "JWT invalid or expired"
+
+### 🔴 Symptômes
+- Erreur 401 dans toutes les requêtes
+- Message : `JWT invalid or expired`
+- Impossible d'accéder aux données
+
+### ✅ Solutions
+
+**C'est NORMAL si vous n'êtes pas connecté !**
+
+**Solution A - Se connecter d'abord :**
+```javascript
+// Dans la console du navigateur
+const { data, error } = await window.supabase.auth.signInWithPassword({
+  email: 'test@crmpro2x.com',
+  password: 'Test123456!'
+});
+
+console.log('Connexion:', { data, error });
+```
+
+**Solution B - Vérifier la session :**
+```javascript
+const { data: { session } } = await window.supabase.auth.getSession();
+console.log('Session active:', session);
+```
+
+Si `session` est `null`, vous devez vous reconnecter.
+
+**Solution C - Rafraîchir le token :**
+```javascript
+const { data, error } = await window.supabase.auth.refreshSession();
+console.log('Token rafraîchi:', { data, error });
+```
+
+### 🧪 Test
+Après connexion, essayez :
+```javascript
+const { data } = await window.supabase.from('clients').select('count');
+console.log('Accès OK:', data);
+```
+
+---
+
+## ⚠️ ERREUR 2 : "Row Level Security policy violation"
+
+### 🔴 Symptômes
+- Erreur dans les requêtes : `new row violates row-level security policy`
+- Code erreur : 42501
+- Les requêtes INSERT/UPDATE/DELETE échouent
+
+### ✅ Solutions
+
+**Solution A - Vérifier que RLS est activé :**
+1. Supabase → Table Editor
+2. Sélectionnez la table problématique
+3. Vérifiez le badge "RLS enabled" en haut à droite
+
+Si RLS n'est PAS activé :
+```sql
+ALTER TABLE nom_de_table ENABLE ROW LEVEL SECURITY;
+```
+
+**Solution B - Vérifier les politiques :**
+1. Supabase → Authentication → Policies
+2. Cherchez les politiques pour votre table
+3. Vérifiez qu'elles existent
+
+Si aucune politique :
+- Réexécutez le script PHASE_3_RLS_SECURITY.sql
+
+**Solution C - Vérifier votre rôle utilisateur :**
+
+Votre utilisateur doit exister dans la table `users` avec un rôle :
+```sql
+-- Vérifier dans SQL Editor
+SELECT id, email, role FROM users 
+WHERE id = auth.uid();
+```
+
+Si vide, ajoutez l'utilisateur :
+```sql
+INSERT INTO users (id, email, role)
+VALUES (
+  auth.uid(), 
+  'votre-email@example.com', 
+  'user'
+);
+```
+
+**Solution D - Comprendre la politique :**
+
+Exemple : Vous essayez de modifier un client mais vous n'êtes pas assigné.
+
+Politique :
+```sql
+CREATE POLICY "Assigned users can update clients"
+ON clients FOR UPDATE
+USING (auth.uid() = assigned_to);
+```
+
+→ Vous devez être l'utilisateur assigné au client !
+
+**Solution temporaire - Désactiver RLS (DEV UNIQUEMENT) :**
+```sql
+-- ⚠️ UNIQUEMENT EN DÉVELOPPEMENT LOCAL !
+ALTER TABLE nom_de_table DISABLE ROW LEVEL SECURITY;
+```
+
+⚠️ **NE JAMAIS faire ceci en production !**
+
+### 🧪 Test
+```javascript
+// Test de création avec les bonnes permissions
+const { data, error } = await window.supabase
+  .from('clients')
+  .insert({
+    name: 'Test Client',
+    status: 'prospect',
+    assigned_to: session.user.id // Important !
+  })
+  .select()
+  .single();
+
+console.log({ data, error });
+```
+
+---
+
+## ⚠️ ERREUR 3 : "User not found in database"
+
+### 🔴 Symptômes
+- Authentification réussit mais données utilisateur manquantes
+- `auth.uid()` existe mais pas de ligne dans `users`
+- Erreurs lors de l'utilisation de l'application
+
+### ✅ Solutions
+
+**Le problème :**
+Supabase Auth (authentification) et votre table `users` (données) sont séparés !
+
+**Solution A - Créer l'utilisateur dans la table users :**
+
+1. **Récupérer l'UUID de l'utilisateur :**
+   - Supabase → Authentication → Users
+   - Copiez l'UUID de l'utilisateur
+
+2. **Insérer dans la table users :**
+   - Supabase → Table Editor → users → Insert row
+   - Remplir :
+     ```
+     id: [UUID copié]
+     email: test@crmpro2x.com
+     full_name: Utilisateur Test
+     role: user
+     ```
+
+**Solution B - Automatiser avec un trigger (recommandé) :**
+
+Créez un trigger qui ajoute automatiquement l'utilisateur dans `users` lors de l'inscription :
+
+```sql
+-- Fonction qui crée l'utilisateur dans users
+CREATE OR REPLACE FUNCTION public.handle_new_user()
+RETURNS TRIGGER AS $$
+BEGIN
+  INSERT INTO public.users (id, email, role)
+  VALUES (NEW.id, NEW.email, 'user');
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Trigger qui appelle la fonction
+CREATE TRIGGER on_auth_user_created
+  AFTER INSERT ON auth.users
+  FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
+```
+
+Maintenant, chaque nouvel utilisateur sera automatiquement ajouté à la table `users` !
+
+**Solution C - Vérifier et réparer :**
+
+Script pour trouver les utilisateurs auth sans entrée dans users :
+
+```sql
+-- Trouver les utilisateurs manquants
+SELECT au.id, au.email
+FROM auth.users au
+LEFT JOIN public.users pu ON au.id = pu.id
+WHERE pu.id IS NULL;
+
+-- Les ajouter (ajustez selon vos besoins)
+INSERT INTO public.users (id, email, role)
+SELECT au.id, au.email, 'user'
+FROM auth.users au
+LEFT JOIN public.users pu ON au.id = pu.id
+WHERE pu.id IS NULL;
+```
+
+### 🧪 Test
+```javascript
+// Vérifier que l'utilisateur existe dans users
+const { data: { user } } = await window.supabase.auth.getUser();
+const { data: userData } = await window.supabase
+  .from('users')
+  .select('*')
+  .eq('id', user.id)
+  .single();
+
+console.log('Utilisateur complet:', userData);
+```
+
+---
+
+## ⚠️ ERREUR 4 : Politiques trop restrictives
+
+### 🔴 Symptômes
+- Même connecté, certaines actions échouent
+- Utilisateur admin ne peut pas accéder à tout
+- Erreur : "insufficient permissions"
+
+### ✅ Solutions
+
+**Solution A - Vérifier votre rôle :**
+```javascript
+const { data: { user } } = await window.supabase.auth.getUser();
+const { data: userData } = await window.supabase
+  .from('users')
+  .select('role')
+  .eq('id', user.id)
+  .single();
+
+console.log('Mon rôle:', userData.role);
+```
+
+Si vous êtes `user` mais avez besoin d'être `admin`, mettez à jour :
+```sql
+UPDATE users 
+SET role = 'admin' 
+WHERE email = 'votre@email.com';
+```
+
+**Solution B - Modifier une politique trop stricte :**
+
+Exemple : Permettre à tous les utilisateurs authentifiés de lire les produits :
+
+```sql
+-- Supprimer l'ancienne politique
+DROP POLICY IF EXISTS "Users can view products" ON products;
+
+-- Créer une nouvelle politique plus permissive
+CREATE POLICY "Authenticated users can view products"
+ON products FOR SELECT
+USING (auth.uid() IS NOT NULL);
+```
+
+**Solution C - Ajouter une politique manquante :**
+
+Si une action spécifique échoue, vérifiez qu'une politique existe pour cette action.
+
+Exemple : Permettre aux users de créer des tâches :
+```sql
+CREATE POLICY "Users can create tasks"
+ON tasks FOR INSERT
+WITH CHECK (auth.uid() IS NOT NULL);
+```
+
+**Solution D - Déboguer les politiques :**
+
+Activer les logs détaillés :
+```sql
+-- Voir pourquoi une politique échoue
+SET client_min_messages TO DEBUG;
+
+-- Votre requête problématique ici
+SELECT * FROM clients WHERE id = 'xxx';
+```
+
+### 🧪 Test
+Testez chaque action CRUD :
+```javascript
+const tests = {
+  read: await window.supabase.from('clients').select('*'),
+  create: await window.supabase.from('clients').insert({name: 'Test'}),
+  update: await window.supabase.from('clients').update({name: 'Updated'}).eq('id', 'xxx'),
+  delete: await window.supabase.from('clients').delete().eq('id', 'xxx')
+};
+
+console.log('Tests CRUD:', tests);
+```
+
+---
+
+## ⚠️ ERREUR 5 : Session expire trop vite
+
+### 🔴 Symptômes
+- Déconnexion fréquente
+- JWT expire rapidement
+- Utilisateur doit se reconnecter souvent
+
+### ✅ Solutions
+
+**Solution A - Configurer le refresh automatique :**
+
+Dans votre client Supabase (`src/integrations/supabase/client.ts`) :
+
+```typescript
+export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+  auth: {
+    persistSession: true,      // Persiste la session
+    autoRefreshToken: true,     // Refresh automatique ✅
+    detectSessionInUrl: true,
+  }
+});
+```
+
+**Solution B - Augmenter la durée du JWT (Supabase Dashboard) :**
+
+1. Supabase → Authentication → Settings
+2. JWT Expiry : Réglez sur `3600` (1 heure) ou plus
+3. Sauvegardez
+
+**Solution C - Implémenter un refresh manuel :**
+
+```typescript
+// Hook pour garder la session active
+useEffect(() => {
+  const { data: { subscription } } = supabase.auth.onAuthStateChange(
+    async (event, session) => {
+      if (event === 'TOKEN_REFRESHED') {
+        console.log('Token rafraîchi automatiquement');
+      }
+      
+      if (event === 'SIGNED_OUT') {
+        console.log('Session expirée');
+        // Rediriger vers login
+      }
+    }
+  );
+
+  return () => subscription.unsubscribe();
+}, []);
+```
+
+### 🧪 Test
+```javascript
+// Vérifier la durée de vie du token
+const { data: { session } } = await window.supabase.auth.getSession();
+const expiresAt = new Date(session.expires_at * 1000);
+console.log('Session expire à:', expiresAt);
+```
+
+---
+
+## ⚠️ ERREUR 6 : Impossible de se déconnecter
+
+### 🔴 Symptômes
+- `signOut()` ne fonctionne pas
+- Session reste active
+- Utilisateur reste connecté
+
+### ✅ Solutions
+
+**Solution A - Déconnexion complète :**
+```javascript
+// Méthode recommandée
+await window.supabase.auth.signOut();
+
+// Vérifier
+const { data: { session } } = await window.supabase.auth.getSession();
+console.log('Session après logout:', session); // Doit être null
+```
+
+**Solution B - Nettoyer le localStorage :**
+```javascript
+await window.supabase.auth.signOut();
+localStorage.clear(); // Nettoie tout
+```
+
+**Solution C - Forcer la déconnexion :**
+```javascript
+// Déconnexion de toutes les sessions
+await window.supabase.auth.signOut({ scope: 'global' });
+```
+
+### 🧪 Test
+```javascript
+await window.supabase.auth.signOut();
+const { data } = await window.supabase.from('clients').select('*');
+console.log('Doit échouer:', data); // null si déconnecté
+```
+
+---
+
+## ⚠️ ERREUR 7 : Email de confirmation non reçu
+
+### 🔴 Symptômes
+- Inscription réussit mais email non reçu
+- Utilisateur ne peut pas confirmer son compte
+- Auto Confirm User nécessaire
+
+### ✅ Solutions
+
+**Solution A - Activer Auto Confirm (DEV) :**
+
+Lors de la création d'utilisateur :
+1. Authentication → Users → Add user
+2. ✅ Cochez "Auto Confirm User"
+
+**Solution B - Configurer l'envoi d'emails (PROD) :**
+
+1. Supabase → Authentication → Email Templates
+2. Configurez SMTP ou utilisez Supabase Mailer
+3. Testez l'envoi
+
+**Solution C - Confirmer manuellement via SQL :**
+```sql
+-- Confirmer un utilisateur existant
+UPDATE auth.users 
+SET email_confirmed_at = NOW() 
+WHERE email = 'user@example.com';
+```
+
+**Solution D - Désactiver la confirmation (DEV UNIQUEMENT) :**
+
+1. Supabase → Authentication → Settings
+2. Email → Disable email confirmations
+3. ⚠️ Réactivez en production !
+
+---
+
+## ⚠️ ERREUR 8 : Politique ne s'applique pas
+
+### 🔴 Symptômes
+- Politique créée mais ne fonctionne pas
+- Toujours les mêmes erreurs de permission
+- Modifications de politiques non prises en compte
+
+### ✅ Solutions
+
+**Solution A - Vérifier que la politique existe :**
+```sql
+-- Lister toutes les politiques d'une table
+SELECT * FROM pg_policies WHERE tablename = 'clients';
+```
+
+**Solution B - Supprimer et recréer :**
+```sql
+-- Supprimer toutes les politiques d'une table
+DROP POLICY IF EXISTS "policy_name" ON table_name;
+
+-- Recréer depuis PHASE_3_RLS_SECURITY.sql
+```
+
+**Solution C - Vérifier l'ordre des politiques :**
+
+Les politiques sont évaluées avec OR (pas AND).
+Si UNE politique permet l'accès, c'est OK.
+
+```sql
+-- Ces deux politiques permettent l'accès si L'UNE OU L'AUTRE est vraie
+Policy 1: auth.uid() = assigned_to
+Policy 2: role = 'admin'
+-- → Un admin OU l'assigné peut accéder
+```
+
+**Solution D - Rafraîchir le cache :**
+
+1. Déconnectez-vous
+2. Fermez tous les onglets
+3. Reconnectez-vous
+4. Testez à nouveau
+
+### 🧪 Test
+```sql
+-- Tester une politique directement
+EXPLAIN (ANALYZE, VERBOSE)
+SELECT * FROM clients WHERE id = 'xxx';
+```
+
+---
+
+## 📊 COMMANDES DE DIAGNOSTIC
+
+```sql
+-- Vérifier RLS activé
+SELECT schemaname, tablename, rowsecurity 
+FROM pg_tables 
+WHERE schemaname = 'public';
+
+-- Lister toutes les politiques
+SELECT schemaname, tablename, policyname, cmd, qual 
+FROM pg_policies 
+WHERE schemaname = 'public';
+
+-- Vérifier l'utilisateur actuel
+SELECT auth.uid(), auth.role();
+
+-- Compter les politiques par table
+SELECT tablename, COUNT(*) as nb_policies
+FROM pg_policies 
+WHERE schemaname = 'public'
+GROUP BY tablename;
+```
+
+---
+
+## 🆘 DERNIER RECOURS
+
+**Option 1 : Réinitialiser toutes les politiques**
+```sql
+-- ⚠️ SUPPRIME TOUTES LES POLITIQUES
+DO $$
+DECLARE
+    r RECORD;
+BEGIN
+    FOR r IN 
+        SELECT schemaname, tablename, policyname
+        FROM pg_policies
+        WHERE schemaname = 'public'
+    LOOP
+        EXECUTE 'DROP POLICY IF EXISTS "' || r.policyname || '" ON ' || r.schemaname || '.' || r.tablename;
+    END LOOP;
+END $$;
+
+-- Puis réexécuter PHASE_3_RLS_SECURITY.sql
+```
+
+**Option 2 : Désactiver RLS temporairement (DEV UNIQUEMENT)**
+```sql
+-- ⚠️ REND LA DB NON SÉCURISÉE
+ALTER TABLE clients DISABLE ROW LEVEL SECURITY;
+-- Répétez pour chaque table
+```
+
+**Option 3 : Recréer le projet Supabase**
+
+Si tout est cassé :
+1. Exportez vos données importantes
+2. Créez un nouveau projet Supabase
+3. Réexécutez Phase 1, 2, 3 depuis le début
+
+---
+
+## ✅ CHECKLIST DE VÉRIFICATION
+
+Avant de demander de l'aide :
+
+- [ ] RLS activé (`SELECT * FROM pg_tables WHERE rowsecurity = true`)
+- [ ] Politiques créées (`SELECT COUNT(*) FROM pg_policies`)
+- [ ] Utilisateur dans auth.users ET public.users
+- [ ] Rôle correct dans public.users
+- [ ] Session active (`auth.getSession()`)
+- [ ] Token valide (pas expiré)
+- [ ] Logs vérifiés (Supabase → Logs)
+
+---
+
+**La sécurité est complexe mais essentielle ! Prenez votre temps ! 🔒**
