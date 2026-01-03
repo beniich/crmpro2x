@@ -1,0 +1,398 @@
+-- ============================================================================
+-- PHASE 3 : SÉCURITÉ - ROW LEVEL SECURITY (RLS)
+-- ============================================================================
+-- Instructions :
+-- 1. Allez dans l'éditeur SQL de Supabase
+-- 2. Copiez-collez TOUT ce fichier
+-- 3. Cliquez sur "Run"
+-- ============================================================================
+-- IMPORTANT : Ces politiques protègent vos données côté serveur
+-- ============================================================================
+
+-- ============================================================================
+-- ACTIVATION DE ROW LEVEL SECURITY SUR TOUTES LES TABLES
+-- ============================================================================
+ALTER TABLE users ENABLE ROW LEVEL SECURITY;
+ALTER TABLE clients ENABLE ROW LEVEL SECURITY;
+ALTER TABLE products ENABLE ROW LEVEL SECURITY;
+ALTER TABLE deals ENABLE ROW LEVEL SECURITY;
+ALTER TABLE projects ENABLE ROW LEVEL SECURITY;
+ALTER TABLE tasks ENABLE ROW LEVEL SECURITY;
+ALTER TABLE invoices ENABLE ROW LEVEL SECURITY;
+ALTER TABLE invoice_items ENABLE ROW LEVEL SECURITY;
+ALTER TABLE quotes ENABLE ROW LEVEL SECURITY;
+ALTER TABLE quote_items ENABLE ROW LEVEL SECURITY;
+ALTER TABLE messages ENABLE ROW LEVEL SECURITY;
+ALTER TABLE activities ENABLE ROW LEVEL SECURITY;
+ALTER TABLE notifications ENABLE ROW LEVEL SECURITY;
+
+-- ============================================================================
+-- POLITIQUES POUR LA TABLE "users"
+-- ============================================================================
+
+-- Les utilisateurs peuvent voir leur propre profil
+CREATE POLICY "Users can view own profile"
+ON users FOR SELECT
+USING (auth.uid() = id);
+
+-- Les utilisateurs peuvent mettre à jour leur propre profil
+CREATE POLICY "Users can update own profile"
+ON users FOR UPDATE
+USING (auth.uid() = id);
+
+-- Les admins peuvent tout voir
+CREATE POLICY "Admins can view all users"
+ON users FOR SELECT
+USING (
+  EXISTS (
+    SELECT 1 FROM users
+    WHERE id = auth.uid() AND role = 'admin'
+  )
+);
+
+-- Les admins peuvent tout modifier
+CREATE POLICY "Admins can update all users"
+ON users FOR UPDATE
+USING (
+  EXISTS (
+    SELECT 1 FROM users
+    WHERE id = auth.uid() AND role = 'admin'
+  )
+);
+
+-- ============================================================================
+-- POLITIQUES POUR LA TABLE "clients"
+-- ============================================================================
+
+-- Les utilisateurs authentifiés peuvent voir les clients
+CREATE POLICY "Authenticated users can view clients"
+ON clients FOR SELECT
+USING (auth.uid() IS NOT NULL);
+
+-- Les utilisateurs peuvent créer des clients
+CREATE POLICY "Authenticated users can create clients"
+ON clients FOR INSERT
+WITH CHECK (auth.uid() IS NOT NULL);
+
+-- Les utilisateurs assignés ou admins peuvent modifier
+CREATE POLICY "Assigned users or admins can update clients"
+ON clients FOR UPDATE
+USING (
+  auth.uid() = assigned_to OR
+  EXISTS (
+    SELECT 1 FROM users
+    WHERE id = auth.uid() AND role IN ('admin', 'manager')
+  )
+);
+
+-- Seuls les admins peuvent supprimer
+CREATE POLICY "Only admins can delete clients"
+ON clients FOR DELETE
+USING (
+  EXISTS (
+    SELECT 1 FROM users
+    WHERE id = auth.uid() AND role = 'admin'
+  )
+);
+
+-- ============================================================================
+-- POLITIQUES POUR LA TABLE "products"
+-- ============================================================================
+
+-- Tout le monde peut voir les produits actifs
+CREATE POLICY "Everyone can view active products"
+ON products FOR SELECT
+USING (status = 'active' OR auth.uid() IS NOT NULL);
+
+-- Seuls les admins et managers peuvent modifier les produits
+CREATE POLICY "Admins and managers can modify products"
+ON products FOR ALL
+USING (
+  EXISTS (
+    SELECT 1 FROM users
+    WHERE id = auth.uid() AND role IN ('admin', 'manager')
+  )
+);
+
+-- ============================================================================
+-- POLITIQUES POUR LA TABLE "deals"
+-- ============================================================================
+
+-- Les utilisateurs authentifiés peuvent voir les deals
+CREATE POLICY "Authenticated users can view deals"
+ON deals FOR SELECT
+USING (auth.uid() IS NOT NULL);
+
+-- Les utilisateurs peuvent créer des deals
+CREATE POLICY "Authenticated users can create deals"
+ON deals FOR INSERT
+WITH CHECK (auth.uid() IS NOT NULL);
+
+-- Les utilisateurs assignés ou managers peuvent modifier
+CREATE POLICY "Assigned users or managers can update deals"
+ON deals FOR UPDATE
+USING (
+  auth.uid() = assigned_to OR
+  EXISTS (
+    SELECT 1 FROM users
+    WHERE id = auth.uid() AND role IN ('admin', 'manager')
+  )
+);
+
+-- ============================================================================
+-- POLITIQUES POUR LA TABLE "projects"
+-- ============================================================================
+
+-- Tous les utilisateurs authentifiés peuvent voir les projets
+CREATE POLICY "Authenticated users can view projects"
+ON projects FOR SELECT
+USING (auth.uid() IS NOT NULL);
+
+-- Les managers et admins peuvent créer des projets
+CREATE POLICY "Managers can create projects"
+ON projects FOR INSERT
+WITH CHECK (
+  EXISTS (
+    SELECT 1 FROM users
+    WHERE id = auth.uid() AND role IN ('admin', 'manager')
+  )
+);
+
+-- Les managers de projet et admins peuvent modifier
+CREATE POLICY "Project managers can update projects"
+ON projects FOR UPDATE
+USING (
+  auth.uid() = manager_id OR
+  EXISTS (
+    SELECT 1 FROM users
+    WHERE id = auth.uid() AND role IN ('admin', 'manager')
+  )
+);
+
+-- ============================================================================
+-- POLITIQUES POUR LA TABLE "tasks"
+-- ============================================================================
+
+-- Les utilisateurs authentifiés peuvent voir les tâches
+CREATE POLICY "Authenticated users can view tasks"
+ON tasks FOR SELECT
+USING (auth.uid() IS NOT NULL);
+
+-- Les utilisateurs peuvent créer des tâches
+CREATE POLICY "Authenticated users can create tasks"
+ON tasks FOR INSERT
+WITH CHECK (auth.uid() IS NOT NULL);
+
+-- Les utilisateurs assignés ou managers peuvent modifier
+CREATE POLICY "Assigned users or managers can update tasks"
+ON tasks FOR UPDATE
+USING (
+  auth.uid() = assigned_to OR
+  EXISTS (
+    SELECT 1 FROM users
+    WHERE id = auth.uid() AND role IN ('admin', 'manager')
+  )
+);
+
+-- ============================================================================
+-- POLITIQUES POUR LA TABLE "invoices"
+-- ============================================================================
+
+-- Les utilisateurs authentifiés peuvent voir les factures
+CREATE POLICY "Authenticated users can view invoices"
+ON invoices FOR SELECT
+USING (auth.uid() IS NOT NULL);
+
+-- Les managers et admins peuvent créer des factures
+CREATE POLICY "Managers can create invoices"
+ON invoices FOR INSERT
+WITH CHECK (
+  EXISTS (
+    SELECT 1 FROM users
+    WHERE id = auth.uid() AND role IN ('admin', 'manager')
+  )
+);
+
+-- Les managers et admins peuvent modifier les factures
+CREATE POLICY "Managers can update invoices"
+ON invoices FOR UPDATE
+USING (
+  EXISTS (
+    SELECT 1 FROM users
+    WHERE id = auth.uid() AND role IN ('admin', 'manager')
+  )
+);
+
+-- ============================================================================
+-- POLITIQUES POUR LA TABLE "invoice_items"
+-- ============================================================================
+
+-- Hérite des permissions de la facture parent
+CREATE POLICY "Users can view invoice items"
+ON invoice_items FOR SELECT
+USING (
+  EXISTS (
+    SELECT 1 FROM invoices
+    WHERE id = invoice_items.invoice_id
+  )
+);
+
+CREATE POLICY "Managers can modify invoice items"
+ON invoice_items FOR ALL
+USING (
+  EXISTS (
+    SELECT 1 FROM users
+    WHERE id = auth.uid() AND role IN ('admin', 'manager')
+  )
+);
+
+-- ============================================================================
+-- POLITIQUES POUR LA TABLE "quotes"
+-- ============================================================================
+
+-- Similaire aux invoices
+CREATE POLICY "Authenticated users can view quotes"
+ON quotes FOR SELECT
+USING (auth.uid() IS NOT NULL);
+
+CREATE POLICY "Managers can create quotes"
+ON quotes FOR INSERT
+WITH CHECK (
+  EXISTS (
+    SELECT 1 FROM users
+    WHERE id = auth.uid() AND role IN ('admin', 'manager')
+  )
+);
+
+CREATE POLICY "Managers can update quotes"
+ON quotes FOR UPDATE
+USING (
+  EXISTS (
+    SELECT 1 FROM users
+    WHERE id = auth.uid() AND role IN ('admin', 'manager')
+  )
+);
+
+-- ============================================================================
+-- POLITIQUES POUR LA TABLE "quote_items"
+-- ============================================================================
+
+CREATE POLICY "Users can view quote items"
+ON quote_items FOR SELECT
+USING (
+  EXISTS (
+    SELECT 1 FROM quotes
+    WHERE id = quote_items.quote_id
+  )
+);
+
+CREATE POLICY "Managers can modify quote items"
+ON quote_items FOR ALL
+USING (
+  EXISTS (
+    SELECT 1 FROM users
+    WHERE id = auth.uid() AND role IN ('admin', 'manager')
+  )
+);
+
+-- ============================================================================
+-- POLITIQUES POUR LA TABLE "messages"
+-- ============================================================================
+
+-- Les utilisateurs peuvent voir leurs propres messages
+CREATE POLICY "Users can view own messages"
+ON messages FOR SELECT
+USING (
+  auth.uid() = sender_id OR 
+  auth.uid() = recipient_id
+);
+
+-- Les utilisateurs peuvent envoyer des messages
+CREATE POLICY "Users can send messages"
+ON messages FOR INSERT
+WITH CHECK (auth.uid() = sender_id);
+
+-- Les utilisateurs peuvent mettre à jour leurs messages envoyés
+CREATE POLICY "Users can update own sent messages"
+ON messages FOR UPDATE
+USING (auth.uid() = sender_id);
+
+-- ============================================================================
+-- POLITIQUES POUR LA TABLE "activities"
+-- ============================================================================
+
+-- Les utilisateurs peuvent voir leur propre activité
+CREATE POLICY "Users can view own activities"
+ON activities FOR SELECT
+USING (auth.uid() = user_id);
+
+-- Les admins peuvent voir toutes les activités
+CREATE POLICY "Admins can view all activities"
+ON activities FOR SELECT
+USING (
+  EXISTS (
+    SELECT 1 FROM users
+    WHERE id = auth.uid() AND role = 'admin'
+  )
+);
+
+-- Le système peut créer des activités
+CREATE POLICY "System can create activities"
+ON activities FOR INSERT
+WITH CHECK (auth.uid() IS NOT NULL);
+
+-- ============================================================================
+-- POLITIQUES POUR LA TABLE "notifications"
+-- ============================================================================
+
+-- Les utilisateurs peuvent voir leurs propres notifications
+CREATE POLICY "Users can view own notifications"
+ON notifications FOR SELECT
+USING (auth.uid() = user_id);
+
+-- Les utilisateurs peuvent mettre à jour leurs notifications
+CREATE POLICY "Users can update own notifications"
+ON notifications FOR UPDATE
+USING (auth.uid() = user_id);
+
+-- Le système peut créer des notifications
+CREATE POLICY "System can create notifications"
+ON notifications FOR INSERT
+WITH CHECK (true);
+
+-- ============================================================================
+-- FONCTION HELPER : Vérifier si l'utilisateur est admin
+-- ============================================================================
+CREATE OR REPLACE FUNCTION is_admin()
+RETURNS BOOLEAN AS $$
+BEGIN
+  RETURN EXISTS (
+    SELECT 1 FROM users
+    WHERE id = auth.uid() AND role = 'admin'
+  );
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- ============================================================================
+-- FONCTION HELPER : Vérifier si l'utilisateur est manager
+-- ============================================================================
+CREATE OR REPLACE FUNCTION is_manager_or_admin()
+RETURNS BOOLEAN AS $$
+BEGIN
+  RETURN EXISTS (
+    SELECT 1 FROM users
+    WHERE id = auth.uid() AND role IN ('admin', 'manager')
+  );
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- ============================================================================
+-- FIN DU SCRIPT DE SÉCURITÉ
+-- ============================================================================
+-- ✅ Vos données sont maintenant protégées !
+-- 
+-- Testez votre configuration :
+-- 1. Créez un utilisateur de test dans Supabase Auth
+-- 2. Essayez d'accéder aux données depuis votre application
+-- 3. Vérifiez que les permissions fonctionnent correctement
+-- ============================================================================

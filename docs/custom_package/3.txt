@@ -1,0 +1,427 @@
+// ============================================================================
+// BONUS : HOOKS REACT POUR UTILISER SUPABASE FACILEMENT
+// ============================================================================
+// Fichier : src/hooks/useSupabase.ts
+// 
+// Ces hooks vous permettent d'utiliser Supabase facilement dans vos composants
+// ============================================================================
+
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
+import type { Database } from '@/integrations/supabase/client';
+
+// ============================================================================
+// HOOK : useClients - Gestion des clients
+// ============================================================================
+
+export const useClients = () => {
+  return useQuery({
+    queryKey: ['clients'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('clients')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      return data;
+    },
+  });
+};
+
+export const useCreateClient = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (newClient: Database['public']['Tables']['clients']['Insert']) => {
+      const { data, error } = await supabase
+        .from('clients')
+        .insert(newClient)
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      // Invalide le cache pour recharger la liste
+      queryClient.invalidateQueries({ queryKey: ['clients'] });
+    },
+  });
+};
+
+export const useUpdateClient = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ 
+      id, 
+      updates 
+    }: { 
+      id: string; 
+      updates: Database['public']['Tables']['clients']['Update'] 
+    }) => {
+      const { data, error } = await supabase
+        .from('clients')
+        .update(updates)
+        .eq('id', id)
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['clients'] });
+    },
+  });
+};
+
+export const useDeleteClient = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase
+        .from('clients')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['clients'] });
+    },
+  });
+};
+
+// ============================================================================
+// HOOK : useProducts - Gestion des produits
+// ============================================================================
+
+export const useProducts = () => {
+  return useQuery({
+    queryKey: ['products'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('products')
+        .select('*')
+        .eq('status', 'active')
+        .order('name');
+
+      if (error) throw error;
+      return data;
+    },
+  });
+};
+
+export const useCreateProduct = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (newProduct: Database['public']['Tables']['products']['Insert']) => {
+      const { data, error } = await supabase
+        .from('products')
+        .insert(newProduct)
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['products'] });
+    },
+  });
+};
+
+// ============================================================================
+// HOOK : useDeals - Gestion des opportunités
+// ============================================================================
+
+export const useDeals = (stage?: string) => {
+  return useQuery({
+    queryKey: ['deals', stage],
+    queryFn: async () => {
+      let query = supabase
+        .from('deals')
+        .select(`
+          *,
+          client:clients(id, name, email)
+        `)
+        .order('created_at', { ascending: false });
+
+      if (stage) {
+        query = query.eq('stage', stage);
+      }
+
+      const { data, error } = await query;
+
+      if (error) throw error;
+      return data;
+    },
+  });
+};
+
+export const useCreateDeal = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (newDeal: Database['public']['Tables']['deals']['Insert']) => {
+      const { data, error } = await supabase
+        .from('deals')
+        .insert(newDeal)
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['deals'] });
+    },
+  });
+};
+
+export const useUpdateDealStage = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ 
+      id, 
+      stage 
+    }: { 
+      id: string; 
+      stage: Database['public']['Tables']['deals']['Row']['stage'];
+    }) => {
+      const { data, error } = await supabase
+        .from('deals')
+        .update({ stage })
+        .eq('id', id)
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['deals'] });
+    },
+  });
+};
+
+// ============================================================================
+// HOOK : useProjects - Gestion des projets
+// ============================================================================
+
+export const useProjects = () => {
+  return useQuery({
+    queryKey: ['projects'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('projects')
+        .select(`
+          *,
+          client:clients(id, name),
+          manager:users(id, full_name)
+        `)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      return data;
+    },
+  });
+};
+
+export const useProject = (id: string) => {
+  return useQuery({
+    queryKey: ['projects', id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('projects')
+        .select(`
+          *,
+          client:clients(*),
+          manager:users(*),
+          tasks(*)
+        `)
+        .eq('id', id)
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!id,
+  });
+};
+
+// ============================================================================
+// HOOK : useTasks - Gestion des tâches
+// ============================================================================
+
+export const useTasks = (projectId?: string) => {
+  return useQuery({
+    queryKey: ['tasks', projectId],
+    queryFn: async () => {
+      let query = supabase
+        .from('tasks')
+        .select(`
+          *,
+          project:projects(id, name),
+          assigned_user:users(id, full_name)
+        `)
+        .order('created_at', { ascending: false });
+
+      if (projectId) {
+        query = query.eq('project_id', projectId);
+      }
+
+      const { data, error } = await query;
+
+      if (error) throw error;
+      return data;
+    },
+  });
+};
+
+export const useUpdateTaskStatus = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ 
+      id, 
+      status 
+    }: { 
+      id: string; 
+      status: Database['public']['Tables']['tasks']['Row']['status'];
+    }) => {
+      const { data, error } = await supabase
+        .from('tasks')
+        .update({ status })
+        .eq('id', id)
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['tasks'] });
+    },
+  });
+};
+
+// ============================================================================
+// HOOK : useInvoices - Gestion des factures
+// ============================================================================
+
+export const useInvoices = (status?: string) => {
+  return useQuery({
+    queryKey: ['invoices', status],
+    queryFn: async () => {
+      let query = supabase
+        .from('invoices')
+        .select(`
+          *,
+          client:clients(id, name, email)
+        `)
+        .order('issue_date', { ascending: false });
+
+      if (status) {
+        query = query.eq('status', status);
+      }
+
+      const { data, error } = await query;
+
+      if (error) throw error;
+      return data;
+    },
+  });
+};
+
+// ============================================================================
+// HOOK : useRealtime - Écoute des changements en temps réel
+// ============================================================================
+
+export const useRealtimeClients = () => {
+  const queryClient = useQueryClient();
+
+  useEffect(() => {
+    const channel = supabase
+      .channel('clients-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'clients',
+        },
+        () => {
+          // Rafraîchit les données quand il y a un changement
+          queryClient.invalidateQueries({ queryKey: ['clients'] });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [queryClient]);
+};
+
+// ============================================================================
+// EXEMPLE D'UTILISATION DANS UN COMPOSANT
+// ============================================================================
+
+/*
+import { useClients, useCreateClient, useDeleteClient } from '@/hooks/useSupabase';
+
+function ClientsPage() {
+  const { data: clients, isLoading, error } = useClients();
+  const createClient = useCreateClient();
+  const deleteClient = useDeleteClient();
+
+  const handleCreateClient = async () => {
+    try {
+      await createClient.mutateAsync({
+        name: 'Nouveau Client',
+        email: 'client@example.com',
+        status: 'prospect',
+      });
+      toast.success('Client créé avec succès !');
+    } catch (error) {
+      toast.error('Erreur lors de la création');
+    }
+  };
+
+  const handleDeleteClient = async (id: string) => {
+    try {
+      await deleteClient.mutateAsync(id);
+      toast.success('Client supprimé !');
+    } catch (error) {
+      toast.error('Erreur lors de la suppression');
+    }
+  };
+
+  if (isLoading) return <div>Chargement...</div>;
+  if (error) return <div>Erreur : {error.message}</div>;
+
+  return (
+    <div>
+      <button onClick={handleCreateClient}>Créer un client</button>
+      {clients?.map(client => (
+        <div key={client.id}>
+          <h3>{client.name}</h3>
+          <button onClick={() => handleDeleteClient(client.id)}>
+            Supprimer
+          </button>
+        </div>
+      ))}
+    </div>
+  );
+}
+*/
+
+// ============================================================================
+// FIN DES HOOKS
+// ============================================================================

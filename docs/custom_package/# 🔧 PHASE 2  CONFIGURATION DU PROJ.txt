@@ -1,0 +1,1245 @@
+# 🔧 PHASE 2 : CONFIGURATION DU PROJET - GUIDE DÉTAILLÉ
+
+## 📋 OBJECTIF DE CETTE PHASE
+
+Connecter votre application CRMPro2x React à votre base de données Supabase en configurant :
+1. Les dépendances nécessaires
+2. Les variables d'environnement
+3. Le client Supabase
+4. La vérification de la connexion
+
+**Durée estimée : 10-15 minutes**
+
+---
+
+## ✅ PRÉREQUIS
+
+Avant de commencer la Phase 2, assurez-vous que :
+
+- [ ] La Phase 1 est terminée (base de données créée dans Supabase)
+- [ ] Vous avez noté votre **SUPABASE_URL**
+- [ ] Vous avez noté votre **SUPABASE_ANON_KEY**
+- [ ] Votre projet CRMPro2x est ouvert dans votre éditeur de code
+- [ ] Un terminal est ouvert à la racine du projet
+
+---
+
+## 📦 ÉTAPE 1 : INSTALLER LES DÉPENDANCES
+
+### Action 1.1 : Installer Supabase Client
+
+Ouvrez un terminal à la racine de votre projet et exécutez :
+
+```bash
+npm install @supabase/supabase-js
+```
+
+**Résultat attendu :**
+```
+added 1 package, and audited 523 packages in 3s
+
+154 packages are looking for funding
+  run `npm fund` for details
+
+found 0 vulnerabilities
+```
+
+### Action 1.2 : Vérifier l'installation
+
+Vérifiez que le package est bien installé :
+
+```bash
+npm list @supabase/supabase-js
+```
+
+**Résultat attendu :**
+```
+crmpro2x@1.0.0 /chemin/vers/votre/projet
+└── @supabase/supabase-js@2.x.x
+```
+
+✅ **ÉTAPE 1 TERMINÉE**
+
+---
+
+## 🔐 ÉTAPE 2 : CONFIGURER LES VARIABLES D'ENVIRONNEMENT
+
+### Action 2.1 : Créer le fichier .env.local
+
+À la **racine de votre projet** (même niveau que package.json), créez un nouveau fichier nommé `.env.local`
+
+**Structure du projet :**
+```
+crmpro2x/
+├── node_modules/
+├── public/
+├── src/
+├── .env.local          ← CRÉEZ CE FICHIER ICI
+├── .gitignore
+├── package.json
+├── vite.config.ts
+└── ...
+```
+
+### Action 2.2 : Ajouter vos clés Supabase
+
+Copiez-collez ce contenu dans `.env.local` :
+
+```env
+# Configuration Supabase pour CRMPro2x
+VITE_SUPABASE_URL=https://votre-projet.supabase.co
+VITE_SUPABASE_ANON_KEY=votre_cle_anonyme_ici
+```
+
+### Action 2.3 : Remplacer par vos vraies clés
+
+**IMPORTANT** : Remplacez les valeurs par vos vraies clés récupérées en Phase 1.
+
+**Où trouver vos clés ?**
+1. Allez sur https://supabase.com
+2. Sélectionnez votre projet
+3. Cliquez sur **Settings** (⚙️) en bas de la barre latérale
+4. Allez dans **API**
+5. Copiez :
+   - **Project URL** → `VITE_SUPABASE_URL`
+   - **anon public** → `VITE_SUPABASE_ANON_KEY`
+
+**Exemple de fichier .env.local correctement rempli :**
+```env
+VITE_SUPABASE_URL=https://xyzcompany.supabase.co
+VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh5emNvbXBhbnkiLCJyb2xlIjoiYW5vbiIsImlhdCI6MTYzOTU4OTI0MCwiZXhwIjoxOTU1MTY1MjQwfQ.abc123def456ghi789jkl012mno345pqr678stu901vwx234
+```
+
+### Action 2.4 : Vérifier que .env.local est ignoré par Git
+
+Ouvrez votre fichier `.gitignore` et vérifiez que cette ligne est présente :
+
+```
+.env.local
+```
+
+Si elle n'y est pas, ajoutez-la !
+
+⚠️ **CRITIQUE** : Ne commitez JAMAIS le fichier .env.local dans Git !
+
+✅ **ÉTAPE 2 TERMINÉE**
+
+---
+
+## 📝 ÉTAPE 3 : CONFIGURER LE CLIENT SUPABASE
+
+### Action 3.1 : Localiser le fichier client existant
+
+Dans votre projet, naviguez vers :
+```
+src/integrations/supabase/client.ts
+```
+
+### Action 3.2 : Sauvegarder l'ancien fichier (optionnel)
+
+Si vous voulez garder une copie de l'ancien fichier :
+
+**Option A - Via terminal :**
+```bash
+cp src/integrations/supabase/client.ts src/integrations/supabase/client.ts.backup
+```
+
+**Option B - Via éditeur :**
+Dupliquez le fichier et renommez-le `client.ts.backup`
+
+### Action 3.3 : Remplacer par le nouveau client
+
+Ouvrez `src/integrations/supabase/client.ts` et **REMPLACEZ TOUT LE CONTENU** par le code suivant :
+
+```typescript
+// ============================================================================
+// CLIENT SUPABASE - Configuration pour CRMPro2x
+// ============================================================================
+// Ce fichier gère la connexion à votre base de données Supabase
+// ============================================================================
+
+import { createClient } from '@supabase/supabase-js';
+
+// Récupération des variables d'environnement
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+
+// Vérification de la présence des clés
+if (!supabaseUrl || !supabaseAnonKey) {
+  console.warn('⚠️ Supabase keys not found. Using mock mode.');
+  console.warn('To use real database:');
+  console.warn('1. Create a .env.local file at project root');
+  console.warn('2. Add your Supabase URL and ANON KEY');
+  console.warn('3. Restart the dev server');
+}
+
+// Création du client Supabase
+export const supabase = createClient(
+  supabaseUrl || 'https://placeholder.supabase.co',
+  supabaseAnonKey || 'placeholder-key',
+  {
+    auth: {
+      persistSession: true,
+      autoRefreshToken: true,
+      detectSessionInUrl: true,
+      storage: window.localStorage,
+    },
+    db: {
+      schema: 'public',
+    },
+    global: {
+      headers: {
+        'x-application-name': 'CRMPro2x',
+      },
+    },
+  }
+);
+
+// ============================================================================
+// HELPERS POUR LA GESTION DES ERREURS
+// ============================================================================
+
+/**
+ * Gère les erreurs Supabase de manière uniforme
+ */
+export const handleSupabaseError = (error: any, context: string) => {
+  console.error(`Supabase Error in ${context}:`, error);
+  
+  if (error.message) {
+    return {
+      success: false,
+      error: error.message,
+      code: error.code || 'UNKNOWN_ERROR',
+    };
+  }
+  
+  return {
+    success: false,
+    error: 'An unknown error occurred',
+    code: 'UNKNOWN_ERROR',
+  };
+};
+
+/**
+ * Vérifie si le client Supabase est configuré correctement
+ */
+export const isSupabaseConfigured = (): boolean => {
+  return !!(supabaseUrl && supabaseAnonKey && 
+    supabaseUrl !== 'https://placeholder.supabase.co' &&
+    supabaseAnonKey !== 'placeholder-key');
+};
+
+// ============================================================================
+// EXPORT DES TYPES SUPABASE (auto-générés)
+// ============================================================================
+
+export type Database = {
+  public: {
+    Tables: {
+      users: {
+        Row: {
+          id: string;
+          email: string;
+          full_name: string | null;
+          role: 'admin' | 'manager' | 'user';
+          avatar_url: string | null;
+          phone: string | null;
+          department: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: Omit<Database['public']['Tables']['users']['Row'], 'id' | 'created_at' | 'updated_at'>;
+        Update: Partial<Database['public']['Tables']['users']['Insert']>;
+      };
+      clients: {
+        Row: {
+          id: string;
+          name: string;
+          email: string | null;
+          phone: string | null;
+          company: string | null;
+          address: string | null;
+          city: string | null;
+          country: string | null;
+          status: 'active' | 'inactive' | 'prospect' | 'lead';
+          source: string | null;
+          assigned_to: string | null;
+          total_revenue: number;
+          notes: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: Omit<Database['public']['Tables']['clients']['Row'], 'id' | 'created_at' | 'updated_at'>;
+        Update: Partial<Database['public']['Tables']['clients']['Insert']>;
+      };
+      products: {
+        Row: {
+          id: string;
+          name: string;
+          description: string | null;
+          sku: string | null;
+          category: string | null;
+          price: number;
+          cost: number | null;
+          stock_quantity: number;
+          min_stock_level: number;
+          status: 'active' | 'inactive' | 'discontinued';
+          image_url: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: Omit<Database['public']['Tables']['products']['Row'], 'id' | 'created_at' | 'updated_at'>;
+        Update: Partial<Database['public']['Tables']['products']['Insert']>;
+      };
+      deals: {
+        Row: {
+          id: string;
+          title: string;
+          client_id: string | null;
+          value: number;
+          stage: 'prospecting' | 'qualification' | 'proposal' | 'negotiation' | 'closed_won' | 'closed_lost';
+          probability: number;
+          expected_close_date: string | null;
+          assigned_to: string | null;
+          notes: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: Omit<Database['public']['Tables']['deals']['Row'], 'id' | 'created_at' | 'updated_at'>;
+        Update: Partial<Database['public']['Tables']['deals']['Insert']>;
+      };
+      projects: {
+        Row: {
+          id: string;
+          name: string;
+          description: string | null;
+          client_id: string | null;
+          status: 'planning' | 'in_progress' | 'on_hold' | 'completed' | 'cancelled';
+          priority: 'low' | 'medium' | 'high' | 'urgent';
+          start_date: string | null;
+          end_date: string | null;
+          budget: number | null;
+          actual_cost: number;
+          progress: number;
+          manager_id: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: Omit<Database['public']['Tables']['projects']['Row'], 'id' | 'created_at' | 'updated_at'>;
+        Update: Partial<Database['public']['Tables']['projects']['Insert']>;
+      };
+      tasks: {
+        Row: {
+          id: string;
+          title: string;
+          description: string | null;
+          project_id: string | null;
+          assigned_to: string | null;
+          status: 'todo' | 'in_progress' | 'review' | 'done' | 'blocked';
+          priority: 'low' | 'medium' | 'high' | 'urgent';
+          due_date: string | null;
+          estimated_hours: number | null;
+          actual_hours: number | null;
+          tags: string[] | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: Omit<Database['public']['Tables']['tasks']['Row'], 'id' | 'created_at' | 'updated_at'>;
+        Update: Partial<Database['public']['Tables']['tasks']['Insert']>;
+      };
+      invoices: {
+        Row: {
+          id: string;
+          invoice_number: string;
+          client_id: string | null;
+          project_id: string | null;
+          issue_date: string;
+          due_date: string;
+          subtotal: number;
+          tax_rate: number;
+          tax_amount: number;
+          total: number;
+          status: 'draft' | 'sent' | 'paid' | 'overdue' | 'cancelled';
+          payment_date: string | null;
+          notes: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: Omit<Database['public']['Tables']['invoices']['Row'], 'id' | 'created_at' | 'updated_at'>;
+        Update: Partial<Database['public']['Tables']['invoices']['Insert']>;
+      };
+      messages: {
+        Row: {
+          id: string;
+          sender_id: string | null;
+          recipient_id: string | null;
+          subject: string | null;
+          body: string;
+          is_read: boolean;
+          read_at: string | null;
+          parent_id: string | null;
+          created_at: string;
+        };
+        Insert: Omit<Database['public']['Tables']['messages']['Row'], 'id' | 'created_at'>;
+        Update: Partial<Database['public']['Tables']['messages']['Insert']>;
+      };
+      activities: {
+        Row: {
+          id: string;
+          user_id: string | null;
+          action: string;
+          entity_type: string;
+          entity_id: string | null;
+          description: string | null;
+          metadata: Record<string, any> | null;
+          ip_address: string | null;
+          created_at: string;
+        };
+        Insert: Omit<Database['public']['Tables']['activities']['Row'], 'id' | 'created_at'>;
+        Update: Partial<Database['public']['Tables']['activities']['Insert']>;
+      };
+    };
+  };
+};
+
+// ============================================================================
+// LOG DE STATUS
+// ============================================================================
+if (isSupabaseConfigured()) {
+  console.log('✅ Supabase client configured successfully');
+  console.log('📊 Connected to:', supabaseUrl);
+} else {
+  console.log('⚠️ Supabase client running in MOCK mode');
+  console.log('💡 Add your credentials to .env.local to use real database');
+}
+
+export default supabase;
+```
+
+### Action 3.4 : Sauvegarder le fichier
+
+Enregistrez le fichier (Ctrl+S ou Cmd+S).
+
+✅ **ÉTAPE 3 TERMINÉE**
+
+---
+
+## 🚀 ÉTAPE 4 : REDÉMARRER LE SERVEUR
+
+### Action 4.1 : Arrêter le serveur actuel
+
+Si votre serveur de développement est en cours d'exécution :
+
+**Dans le terminal, appuyez sur :**
+```
+Ctrl + C
+```
+
+Attendez que le serveur s'arrête complètement.
+
+### Action 4.2 : Redémarrer le serveur
+
+Exécutez :
+
+```bash
+npm run dev
+```
+
+**Résultat attendu :**
+```
+  VITE v5.4.0  ready in 543 ms
+
+  ➜  Local:   http://localhost:5173/
+  ➜  Network: use --host to expose
+  ➜  press h + enter to show help
+```
+
+### Action 4.3 : Vérifier les logs de console
+
+Dans la console du terminal, vous devriez voir :
+
+```
+✅ Supabase client configured successfully
+📊 Connected to: https://votre-projet.supabase.co
+```
+
+⚠️ **Si vous voyez :**
+```
+⚠️ Supabase client running in MOCK mode
+💡 Add your credentials to .env.local to use real database
+```
+
+**→ Cela signifie que vos clés ne sont pas détectées. Vérifiez :**
+1. Le fichier `.env.local` est à la racine du projet
+2. Les noms des variables commencent par `VITE_`
+3. Il n'y a pas d'espaces avant/après les valeurs
+4. Vous avez bien redémarré le serveur
+
+✅ **ÉTAPE 4 TERMINÉE**
+
+---
+
+## 🧪 ÉTAPE 5 : TESTER LA CONNEXION
+
+### Action 5.1 : Ouvrir l'application
+
+Ouvrez votre navigateur et allez sur :
+```
+http://localhost:5173
+```
+
+### Action 5.2 : Ouvrir la console du navigateur
+
+**Chrome/Edge/Brave :**
+- Appuyez sur `F12` ou
+- Clic droit → Inspecter → Console
+
+**Firefox :**
+- Appuyez sur `F12` ou
+- Clic droit → Inspecter l'élément → Console
+
+**Safari :**
+- Cmd+Option+C ou
+- Développement → Afficher la console JavaScript
+
+### Action 5.3 : Vérifier les messages de connexion
+
+Dans la console, vous devriez voir :
+
+```javascript
+✅ Supabase client configured successfully
+📊 Connected to: https://votre-projet.supabase.co
+```
+
+### Action 5.4 : Tester une requête simple
+
+Dans la console du navigateur, exécutez cette commande pour tester :
+
+```javascript
+// Tester la connexion
+const { data, error } = await window.supabase.from('clients').select('count');
+console.log('Test result:', { data, error });
+```
+
+**Résultat attendu :**
+```javascript
+Test result: { data: [{count: 2}], error: null }
+```
+
+Si vous voyez `error: null`, c'est que la connexion fonctionne ! 🎉
+
+✅ **ÉTAPE 5 TERMINÉE**
+
+---
+
+## ✅ VÉRIFICATION FINALE
+
+Cochez chaque élément pour confirmer que la Phase 2 est complète :
+
+- [ ] Package @supabase/supabase-js installé
+- [ ] Fichier .env.local créé à la racine
+- [ ] Vraies clés Supabase ajoutées
+- [ ] .env.local est dans .gitignore
+- [ ] Fichier client.ts mis à jour
+- [ ] Serveur redémarré
+- [ ] Message de succès dans la console terminal
+- [ ] Message de succès dans la console navigateur
+- [ ] Test de requête réussi
+
+---
+
+## 🎉 PHASE 2 TERMINÉE !
+
+Votre application CRMPro2x est maintenant connectée à votre base de données Supabase réelle !
+
+**Ce qui fonctionne maintenant :**
+- ✅ Connexion à Supabase établie
+- ✅ Types TypeScript configurés
+- ✅ Gestion d'erreurs en place
+- ✅ Prêt pour les requêtes de données
+
+**Prochaine étape :**
+→ **PHASE 3** : Sécurisation avec Row Level Security (RLS)
+
+---
+
+## 🆘 DÉPANNAGE
+
+### Problème 1 : "Cannot find module '@supabase/supabase-js'"
+
+**Solution :**
+```bash
+# Supprimer node_modules
+rm -rf node_modules
+rm package-lock.json
+
+# Réinstaller
+npm install
+npm install @supabase/supabase-js
+```
+
+### Problème 2 : "VITE_SUPABASE_URL is undefined"
+
+**Solution :**
+1. Vérifiez que `.env.local` est à la **racine** (pas dans src/)
+2. Vérifiez que les variables commencent par `VITE_`
+3. Redémarrez le serveur (`npm run dev`)
+
+### Problème 3 : "Invalid API key"
+
+**Solution :**
+1. Retournez dans Supabase → Settings → API
+2. Vérifiez que vous utilisez la clé **anon public** (pas service_role)
+3. Copiez à nouveau la clé complète (sans espaces)
+4. Redémarrez le serveur
+
+### Problème 4 : Les logs ne s'affichent pas
+
+**Solution :**
+1. Ouvrez `src/integrations/supabase/client.ts`
+2. Vérifiez que les lignes console.log() sont présentes à la fin
+3. Videz le cache du navigateur (Ctrl+Shift+Delete)
+4. Rechargez la page (Ctrl+R ou F5)
+
+---
+
+## 📞 BESOIN D'AIDE ?
+
+Si vous êtes bloqué :
+
+1. **Vérifiez les logs** :
+   - Terminal : Erreurs de compilation
+   - Console navigateur : Erreurs JavaScript
+
+2. **Vérifiez Supabase** :
+   - Dashboard → Settings → API
+   - Les clés sont-elles correctes ?
+
+3. **Consultez la documentation** :
+   - https://supabase.com/docs/reference/javascript
+
+---
+
+**Prêt pour la Phase 3 ? Continuez vers la sécurisation ! 🔒**# 🔧 PHASE 2 : CONFIGURATION DU PROJET - GUIDE DÉTAILLÉ
+
+## 📋 OBJECTIF DE CETTE PHASE
+
+Connecter votre application CRMPro2x React à votre base de données Supabase en configurant :
+1. Les dépendances nécessaires
+2. Les variables d'environnement
+3. Le client Supabase
+4. La vérification de la connexion
+
+**Durée estimée : 10-15 minutes**
+
+---
+
+## ✅ PRÉREQUIS
+
+Avant de commencer la Phase 2, assurez-vous que :
+
+- [ ] La Phase 1 est terminée (base de données créée dans Supabase)
+- [ ] Vous avez noté votre **SUPABASE_URL**
+- [ ] Vous avez noté votre **SUPABASE_ANON_KEY**
+- [ ] Votre projet CRMPro2x est ouvert dans votre éditeur de code
+- [ ] Un terminal est ouvert à la racine du projet
+
+---
+
+## 📦 ÉTAPE 1 : INSTALLER LES DÉPENDANCES
+
+### Action 1.1 : Installer Supabase Client
+
+Ouvrez un terminal à la racine de votre projet et exécutez :
+
+```bash
+npm install @supabase/supabase-js
+```
+
+**Résultat attendu :**
+```
+added 1 package, and audited 523 packages in 3s
+
+154 packages are looking for funding
+  run `npm fund` for details
+
+found 0 vulnerabilities
+```
+
+### Action 1.2 : Vérifier l'installation
+
+Vérifiez que le package est bien installé :
+
+```bash
+npm list @supabase/supabase-js
+```
+
+**Résultat attendu :**
+```
+crmpro2x@1.0.0 /chemin/vers/votre/projet
+└── @supabase/supabase-js@2.x.x
+```
+
+✅ **ÉTAPE 1 TERMINÉE**
+
+---
+
+## 🔐 ÉTAPE 2 : CONFIGURER LES VARIABLES D'ENVIRONNEMENT
+
+### Action 2.1 : Créer le fichier .env.local
+
+À la **racine de votre projet** (même niveau que package.json), créez un nouveau fichier nommé `.env.local`
+
+**Structure du projet :**
+```
+crmpro2x/
+├── node_modules/
+├── public/
+├── src/
+├── .env.local          ← CRÉEZ CE FICHIER ICI
+├── .gitignore
+├── package.json
+├── vite.config.ts
+└── ...
+```
+
+### Action 2.2 : Ajouter vos clés Supabase
+
+Copiez-collez ce contenu dans `.env.local` :
+
+```env
+# Configuration Supabase pour CRMPro2x
+VITE_SUPABASE_URL=https://votre-projet.supabase.co
+VITE_SUPABASE_ANON_KEY=votre_cle_anonyme_ici
+```
+
+### Action 2.3 : Remplacer par vos vraies clés
+
+**IMPORTANT** : Remplacez les valeurs par vos vraies clés récupérées en Phase 1.
+
+**Où trouver vos clés ?**
+1. Allez sur https://supabase.com
+2. Sélectionnez votre projet
+3. Cliquez sur **Settings** (⚙️) en bas de la barre latérale
+4. Allez dans **API**
+5. Copiez :
+   - **Project URL** → `VITE_SUPABASE_URL`
+   - **anon public** → `VITE_SUPABASE_ANON_KEY`
+
+**Exemple de fichier .env.local correctement rempli :**
+```env
+VITE_SUPABASE_URL=https://xyzcompany.supabase.co
+VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh5emNvbXBhbnkiLCJyb2xlIjoiYW5vbiIsImlhdCI6MTYzOTU4OTI0MCwiZXhwIjoxOTU1MTY1MjQwfQ.abc123def456ghi789jkl012mno345pqr678stu901vwx234
+```
+
+### Action 2.4 : Vérifier que .env.local est ignoré par Git
+
+Ouvrez votre fichier `.gitignore` et vérifiez que cette ligne est présente :
+
+```
+.env.local
+```
+
+Si elle n'y est pas, ajoutez-la !
+
+⚠️ **CRITIQUE** : Ne commitez JAMAIS le fichier .env.local dans Git !
+
+✅ **ÉTAPE 2 TERMINÉE**
+
+---
+
+## 📝 ÉTAPE 3 : CONFIGURER LE CLIENT SUPABASE
+
+### Action 3.1 : Localiser le fichier client existant
+
+Dans votre projet, naviguez vers :
+```
+src/integrations/supabase/client.ts
+```
+
+### Action 3.2 : Sauvegarder l'ancien fichier (optionnel)
+
+Si vous voulez garder une copie de l'ancien fichier :
+
+**Option A - Via terminal :**
+```bash
+cp src/integrations/supabase/client.ts src/integrations/supabase/client.ts.backup
+```
+
+**Option B - Via éditeur :**
+Dupliquez le fichier et renommez-le `client.ts.backup`
+
+### Action 3.3 : Remplacer par le nouveau client
+
+Ouvrez `src/integrations/supabase/client.ts` et **REMPLACEZ TOUT LE CONTENU** par le code suivant :
+
+```typescript
+// ============================================================================
+// CLIENT SUPABASE - Configuration pour CRMPro2x
+// ============================================================================
+// Ce fichier gère la connexion à votre base de données Supabase
+// ============================================================================
+
+import { createClient } from '@supabase/supabase-js';
+
+// Récupération des variables d'environnement
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+
+// Vérification de la présence des clés
+if (!supabaseUrl || !supabaseAnonKey) {
+  console.warn('⚠️ Supabase keys not found. Using mock mode.');
+  console.warn('To use real database:');
+  console.warn('1. Create a .env.local file at project root');
+  console.warn('2. Add your Supabase URL and ANON KEY');
+  console.warn('3. Restart the dev server');
+}
+
+// Création du client Supabase
+export const supabase = createClient(
+  supabaseUrl || 'https://placeholder.supabase.co',
+  supabaseAnonKey || 'placeholder-key',
+  {
+    auth: {
+      persistSession: true,
+      autoRefreshToken: true,
+      detectSessionInUrl: true,
+      storage: window.localStorage,
+    },
+    db: {
+      schema: 'public',
+    },
+    global: {
+      headers: {
+        'x-application-name': 'CRMPro2x',
+      },
+    },
+  }
+);
+
+// ============================================================================
+// HELPERS POUR LA GESTION DES ERREURS
+// ============================================================================
+
+/**
+ * Gère les erreurs Supabase de manière uniforme
+ */
+export const handleSupabaseError = (error: any, context: string) => {
+  console.error(`Supabase Error in ${context}:`, error);
+  
+  if (error.message) {
+    return {
+      success: false,
+      error: error.message,
+      code: error.code || 'UNKNOWN_ERROR',
+    };
+  }
+  
+  return {
+    success: false,
+    error: 'An unknown error occurred',
+    code: 'UNKNOWN_ERROR',
+  };
+};
+
+/**
+ * Vérifie si le client Supabase est configuré correctement
+ */
+export const isSupabaseConfigured = (): boolean => {
+  return !!(supabaseUrl && supabaseAnonKey && 
+    supabaseUrl !== 'https://placeholder.supabase.co' &&
+    supabaseAnonKey !== 'placeholder-key');
+};
+
+// ============================================================================
+// EXPORT DES TYPES SUPABASE (auto-générés)
+// ============================================================================
+
+export type Database = {
+  public: {
+    Tables: {
+      users: {
+        Row: {
+          id: string;
+          email: string;
+          full_name: string | null;
+          role: 'admin' | 'manager' | 'user';
+          avatar_url: string | null;
+          phone: string | null;
+          department: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: Omit<Database['public']['Tables']['users']['Row'], 'id' | 'created_at' | 'updated_at'>;
+        Update: Partial<Database['public']['Tables']['users']['Insert']>;
+      };
+      clients: {
+        Row: {
+          id: string;
+          name: string;
+          email: string | null;
+          phone: string | null;
+          company: string | null;
+          address: string | null;
+          city: string | null;
+          country: string | null;
+          status: 'active' | 'inactive' | 'prospect' | 'lead';
+          source: string | null;
+          assigned_to: string | null;
+          total_revenue: number;
+          notes: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: Omit<Database['public']['Tables']['clients']['Row'], 'id' | 'created_at' | 'updated_at'>;
+        Update: Partial<Database['public']['Tables']['clients']['Insert']>;
+      };
+      products: {
+        Row: {
+          id: string;
+          name: string;
+          description: string | null;
+          sku: string | null;
+          category: string | null;
+          price: number;
+          cost: number | null;
+          stock_quantity: number;
+          min_stock_level: number;
+          status: 'active' | 'inactive' | 'discontinued';
+          image_url: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: Omit<Database['public']['Tables']['products']['Row'], 'id' | 'created_at' | 'updated_at'>;
+        Update: Partial<Database['public']['Tables']['products']['Insert']>;
+      };
+      deals: {
+        Row: {
+          id: string;
+          title: string;
+          client_id: string | null;
+          value: number;
+          stage: 'prospecting' | 'qualification' | 'proposal' | 'negotiation' | 'closed_won' | 'closed_lost';
+          probability: number;
+          expected_close_date: string | null;
+          assigned_to: string | null;
+          notes: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: Omit<Database['public']['Tables']['deals']['Row'], 'id' | 'created_at' | 'updated_at'>;
+        Update: Partial<Database['public']['Tables']['deals']['Insert']>;
+      };
+      projects: {
+        Row: {
+          id: string;
+          name: string;
+          description: string | null;
+          client_id: string | null;
+          status: 'planning' | 'in_progress' | 'on_hold' | 'completed' | 'cancelled';
+          priority: 'low' | 'medium' | 'high' | 'urgent';
+          start_date: string | null;
+          end_date: string | null;
+          budget: number | null;
+          actual_cost: number;
+          progress: number;
+          manager_id: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: Omit<Database['public']['Tables']['projects']['Row'], 'id' | 'created_at' | 'updated_at'>;
+        Update: Partial<Database['public']['Tables']['projects']['Insert']>;
+      };
+      tasks: {
+        Row: {
+          id: string;
+          title: string;
+          description: string | null;
+          project_id: string | null;
+          assigned_to: string | null;
+          status: 'todo' | 'in_progress' | 'review' | 'done' | 'blocked';
+          priority: 'low' | 'medium' | 'high' | 'urgent';
+          due_date: string | null;
+          estimated_hours: number | null;
+          actual_hours: number | null;
+          tags: string[] | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: Omit<Database['public']['Tables']['tasks']['Row'], 'id' | 'created_at' | 'updated_at'>;
+        Update: Partial<Database['public']['Tables']['tasks']['Insert']>;
+      };
+      invoices: {
+        Row: {
+          id: string;
+          invoice_number: string;
+          client_id: string | null;
+          project_id: string | null;
+          issue_date: string;
+          due_date: string;
+          subtotal: number;
+          tax_rate: number;
+          tax_amount: number;
+          total: number;
+          status: 'draft' | 'sent' | 'paid' | 'overdue' | 'cancelled';
+          payment_date: string | null;
+          notes: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: Omit<Database['public']['Tables']['invoices']['Row'], 'id' | 'created_at' | 'updated_at'>;
+        Update: Partial<Database['public']['Tables']['invoices']['Insert']>;
+      };
+      messages: {
+        Row: {
+          id: string;
+          sender_id: string | null;
+          recipient_id: string | null;
+          subject: string | null;
+          body: string;
+          is_read: boolean;
+          read_at: string | null;
+          parent_id: string | null;
+          created_at: string;
+        };
+        Insert: Omit<Database['public']['Tables']['messages']['Row'], 'id' | 'created_at'>;
+        Update: Partial<Database['public']['Tables']['messages']['Insert']>;
+      };
+      activities: {
+        Row: {
+          id: string;
+          user_id: string | null;
+          action: string;
+          entity_type: string;
+          entity_id: string | null;
+          description: string | null;
+          metadata: Record<string, any> | null;
+          ip_address: string | null;
+          created_at: string;
+        };
+        Insert: Omit<Database['public']['Tables']['activities']['Row'], 'id' | 'created_at'>;
+        Update: Partial<Database['public']['Tables']['activities']['Insert']>;
+      };
+    };
+  };
+};
+
+// ============================================================================
+// LOG DE STATUS
+// ============================================================================
+if (isSupabaseConfigured()) {
+  console.log('✅ Supabase client configured successfully');
+  console.log('📊 Connected to:', supabaseUrl);
+} else {
+  console.log('⚠️ Supabase client running in MOCK mode');
+  console.log('💡 Add your credentials to .env.local to use real database');
+}
+
+export default supabase;
+```
+
+### Action 3.4 : Sauvegarder le fichier
+
+Enregistrez le fichier (Ctrl+S ou Cmd+S).
+
+✅ **ÉTAPE 3 TERMINÉE**
+
+---
+
+## 🚀 ÉTAPE 4 : REDÉMARRER LE SERVEUR
+
+### Action 4.1 : Arrêter le serveur actuel
+
+Si votre serveur de développement est en cours d'exécution :
+
+**Dans le terminal, appuyez sur :**
+```
+Ctrl + C
+```
+
+Attendez que le serveur s'arrête complètement.
+
+### Action 4.2 : Redémarrer le serveur
+
+Exécutez :
+
+```bash
+npm run dev
+```
+
+**Résultat attendu :**
+```
+  VITE v5.4.0  ready in 543 ms
+
+  ➜  Local:   http://localhost:5173/
+  ➜  Network: use --host to expose
+  ➜  press h + enter to show help
+```
+
+### Action 4.3 : Vérifier les logs de console
+
+Dans la console du terminal, vous devriez voir :
+
+```
+✅ Supabase client configured successfully
+📊 Connected to: https://votre-projet.supabase.co
+```
+
+⚠️ **Si vous voyez :**
+```
+⚠️ Supabase client running in MOCK mode
+💡 Add your credentials to .env.local to use real database
+```
+
+**→ Cela signifie que vos clés ne sont pas détectées. Vérifiez :**
+1. Le fichier `.env.local` est à la racine du projet
+2. Les noms des variables commencent par `VITE_`
+3. Il n'y a pas d'espaces avant/après les valeurs
+4. Vous avez bien redémarré le serveur
+
+✅ **ÉTAPE 4 TERMINÉE**
+
+---
+
+## 🧪 ÉTAPE 5 : TESTER LA CONNEXION
+
+### Action 5.1 : Ouvrir l'application
+
+Ouvrez votre navigateur et allez sur :
+```
+http://localhost:5173
+```
+
+### Action 5.2 : Ouvrir la console du navigateur
+
+**Chrome/Edge/Brave :**
+- Appuyez sur `F12` ou
+- Clic droit → Inspecter → Console
+
+**Firefox :**
+- Appuyez sur `F12` ou
+- Clic droit → Inspecter l'élément → Console
+
+**Safari :**
+- Cmd+Option+C ou
+- Développement → Afficher la console JavaScript
+
+### Action 5.3 : Vérifier les messages de connexion
+
+Dans la console, vous devriez voir :
+
+```javascript
+✅ Supabase client configured successfully
+📊 Connected to: https://votre-projet.supabase.co
+```
+
+### Action 5.4 : Tester une requête simple
+
+Dans la console du navigateur, exécutez cette commande pour tester :
+
+```javascript
+// Tester la connexion
+const { data, error } = await window.supabase.from('clients').select('count');
+console.log('Test result:', { data, error });
+```
+
+**Résultat attendu :**
+```javascript
+Test result: { data: [{count: 2}], error: null }
+```
+
+Si vous voyez `error: null`, c'est que la connexion fonctionne ! 🎉
+
+✅ **ÉTAPE 5 TERMINÉE**
+
+---
+
+## ✅ VÉRIFICATION FINALE
+
+Cochez chaque élément pour confirmer que la Phase 2 est complète :
+
+- [ ] Package @supabase/supabase-js installé
+- [ ] Fichier .env.local créé à la racine
+- [ ] Vraies clés Supabase ajoutées
+- [ ] .env.local est dans .gitignore
+- [ ] Fichier client.ts mis à jour
+- [ ] Serveur redémarré
+- [ ] Message de succès dans la console terminal
+- [ ] Message de succès dans la console navigateur
+- [ ] Test de requête réussi
+
+---
+
+## 🎉 PHASE 2 TERMINÉE !
+
+Votre application CRMPro2x est maintenant connectée à votre base de données Supabase réelle !
+
+**Ce qui fonctionne maintenant :**
+- ✅ Connexion à Supabase établie
+- ✅ Types TypeScript configurés
+- ✅ Gestion d'erreurs en place
+- ✅ Prêt pour les requêtes de données
+
+**Prochaine étape :**
+→ **PHASE 3** : Sécurisation avec Row Level Security (RLS)
+
+---
+
+## 🆘 DÉPANNAGE
+
+### Problème 1 : "Cannot find module '@supabase/supabase-js'"
+
+**Solution :**
+```bash
+# Supprimer node_modules
+rm -rf node_modules
+rm package-lock.json
+
+# Réinstaller
+npm install
+npm install @supabase/supabase-js
+```
+
+### Problème 2 : "VITE_SUPABASE_URL is undefined"
+
+**Solution :**
+1. Vérifiez que `.env.local` est à la **racine** (pas dans src/)
+2. Vérifiez que les variables commencent par `VITE_`
+3. Redémarrez le serveur (`npm run dev`)
+
+### Problème 3 : "Invalid API key"
+
+**Solution :**
+1. Retournez dans Supabase → Settings → API
+2. Vérifiez que vous utilisez la clé **anon public** (pas service_role)
+3. Copiez à nouveau la clé complète (sans espaces)
+4. Redémarrez le serveur
+
+### Problème 4 : Les logs ne s'affichent pas
+
+**Solution :**
+1. Ouvrez `src/integrations/supabase/client.ts`
+2. Vérifiez que les lignes console.log() sont présentes à la fin
+3. Videz le cache du navigateur (Ctrl+Shift+Delete)
+4. Rechargez la page (Ctrl+R ou F5)
+
+---
+
+## 📞 BESOIN D'AIDE ?
+
+Si vous êtes bloqué :
+
+1. **Vérifiez les logs** :
+   - Terminal : Erreurs de compilation
+   - Console navigateur : Erreurs JavaScript
+
+2. **Vérifiez Supabase** :
+   - Dashboard → Settings → API
+   - Les clés sont-elles correctes ?
+
+3. **Consultez la documentation** :
+   - https://supabase.com/docs/reference/javascript
+
+---
+
+**Prêt pour la Phase 3 ? Continuez vers la sécurisation ! 🔒**
