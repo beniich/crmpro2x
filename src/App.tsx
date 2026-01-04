@@ -10,8 +10,8 @@ import { AuthProvider, useAuth } from '@/hooks/useAuth';
 import { Toaster } from '@/components/ui/toaster';
 
 // Pages
-import Login from '@/pages/Login';
-import Signup from '@/pages/Signup';
+import Login from '@/pages/auth/Login';
+import Signup from '@/pages/auth/Signup';
 import Pricing from '@/pages/Pricing';
 import Dashboard from '@/pages/Dashboard';
 // Importez vos autres pages ici...
@@ -94,7 +94,7 @@ function App() {
             <Routes>
               {/* Routes publiques */}
               <Route path="/" element={<Navigate to="/pricing" replace />} />
-              
+
               <Route
                 path="/login"
                 element={
@@ -103,7 +103,7 @@ function App() {
                   </PublicRoute>
                 }
               />
-              
+
               <Route
                 path="/signup"
                 element={
@@ -112,7 +112,7 @@ function App() {
                   </PublicRoute>
                 }
               />
-              
+
               <Route path="/pricing" element={<Pricing />} />
 
               {/* Routes protégées */}
