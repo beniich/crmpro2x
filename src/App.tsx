@@ -38,6 +38,8 @@ const SecurityPage = lazy(() => import("./pages/SecurityPage")); // PROMPT 6
 const Pricing = lazy(() => import("./pages/Pricing"));
 const Subscriptions = lazy(() => import("./pages/Subscriptions"));
 const Checkout = lazy(() => import("./pages/Checkout"));
+const Login = lazy(() => import("./pages/auth/Login"));
+const Signup = lazy(() => import("./pages/auth/Signup"));
 const InvoicesPage = lazy(() => import("./pages/finance/InvoicesPage").then(module => ({ default: module.InvoicesPage })));
 const InvoiceEditor = lazy(() => import("./pages/finance/InvoiceEditor").then(module => ({ default: module.InvoiceEditor })));
 const Workflows = lazy(() => import("./pages/Workflows"));
@@ -87,6 +89,9 @@ const App = () => (
               <Route path="/terms" element={<Terms />} />
               <Route path="/privacy" element={<Privacy />} />
               <Route path="/pricing" element={<Pricing />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/signup" element={<Signup />} />
+              <Route path="/register" element={<Signup />} />
               <Route path="/checkout" element={<Checkout />} />
               <Route path="/products" element={<Products />} />
               <Route path="/products/:id" element={<ProductDetails />} />
